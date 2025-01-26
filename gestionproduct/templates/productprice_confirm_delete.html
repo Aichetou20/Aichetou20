@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Supprimer Prix de Produit{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Supprimer le Prix de Produit</h1>
+    <p>Êtes-vous sûr de vouloir supprimer le prix suivant ?</p>
+    <ul>
+        <li><strong>Produit :</strong> {{ object.product.name }}</li>
+        <li><strong>Point de Vente :</strong> {{ object.point_of_sale.code }}</li>
+        <li><strong>Valeur :</strong> {{ object.value }}</li>
+        <li><strong>Date de Début :</strong> {{ object.date_from }}</li>
+        <li><strong>Date de Fin :</strong> {{ object.date_to }}</li>
+    </ul>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Confirmer</button>
+        <a href="{% url 'productprice-list' %}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %}

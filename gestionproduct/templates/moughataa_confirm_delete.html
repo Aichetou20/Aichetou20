@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}Supprimer Moughataa{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Supprimer la Moughataa</h1>
+    <p>Êtes-vous sûr de vouloir supprimer la moughataa suivante ?</p>
+    <ul>
+        <li><strong>Code :</strong> {{ object.code }}</li>
+        <li><strong>Label :</strong> {{ object.label }}</li>
+        <li><strong>Wilaya :</strong> {{ object.wilaya.name }}</li>
+    </ul>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Confirmer</button>
+        <a href="{% url 'moughataa-list' %}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %}

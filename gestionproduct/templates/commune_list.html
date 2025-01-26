@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste des Communes{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Liste des Communes</h1>
+    <a href="{% url 'commune-create' %}" class="btn btn-success mb-3">Créer une nouvelle Commune</a>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Nom</th>
+                <th>Moughataa</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for commune in object_list %}
+            <tr>
+                <td>{{ commune.code }}</td>
+                <td>{{ commune.name }}</td>
+                <td>{{ commune.moughataa.label }}</td>
+                <td>
+                    <a href="{% url 'commune-update' commune.pk %}" class="btn btn-primary btn-sm">Modifier</a>
+                    <a href="{% url 'commune-delete' commune.pk %}" class="btn btn-danger btn-sm">Supprimer</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Supprimer Point de Vente{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Supprimer le Point de Vente</h1>
+    <p>Êtes-vous sûr de vouloir supprimer le point de vente suivant ?</p>
+    <ul>
+        <li><strong>Code :</strong> {{ object.code }}</li>
+        <li><strong>Type :</strong> {{ object.type }}</li>
+        <li><strong>Latitude :</strong> {{ object.gps_lat }}</li>
+        <li><strong>Longitude :</strong> {{ object.gps_lon }}</li>
+        <li><strong>Commune :</strong> {{ object.commune.name }}</li>
+    </ul>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Confirmer</button>
+        <a href="{% url 'pointofsale-list' %}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %}

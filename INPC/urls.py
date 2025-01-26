@@ -16,9 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.http import HttpResponse
+
+# Vue temporaire pour la page d'accueil
+def home(request):
+    return HttpResponse("<h1>Bienvenue sur l'application INPC</h1><p>Utilisez les menus pour naviguer.</p>")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-        path('', include('gestionproduct.urls')),  # URLs de votre application
-
+    path('', home, name='home'),  # Page d'accueil par défaut
+    path('', include('gestionproduct.urls')),  # URLs pour l'application gestionproduct
 ]
