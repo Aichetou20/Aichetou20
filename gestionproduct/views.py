@@ -186,27 +186,6 @@ class CartProductDeleteView(DeleteView):
     success_url = reverse_lazy('cartproduct-list')
 
 
-class CartProductsListView(ListView):
-    model = CartProducts
-    template_name = 'cartproducts_list.html'
-    context_object_name = 'cartproducts'
-
-class CartProductsCreateView(CreateView):
-    model = CartProducts
-    fields = ['id', 'product', 'cart', 'weight', 'date_from', 'date_to']
-    template_name = 'cartproducts_form.html'
-    success_url = reverse_lazy('cartproducts-list')
-
-class CartProductsUpdateView(UpdateView):
-    model = CartProducts
-    fields = ['id', 'product', 'cart', 'weight', 'date_from', 'date_to']
-    template_name = 'cartproducts_form.html'
-    success_url = reverse_lazy('cartproducts-list')
-
-class CartProductsDeleteView(DeleteView):
-    model = CartProducts
-    template_name = 'cartproducts_confirm_delete.html'
-    success_url = reverse_lazy('cartproducts-list')
 
 
 class ProductPriceListView(ListView):

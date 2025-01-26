@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 
-{% block title %}Supprimer le Prix{% endblock %}
+{% block title %}Supprimer un Produit du Panier{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <h1 class="text-center">Confirmer la Suppression</h1>
-    <p>Êtes-vous sûr de vouloir supprimer le prix pour le produit <strong>{{ object.product.name }}</strong> (Code : {{ object.product.code }}) ?</p>
+    <p>Êtes-vous sûr de vouloir supprimer <strong>{{ object.product.name }}</strong> du panier <strong>{{ object.cart.name }}</strong> ?</p>
     <form method="post" class="mt-4">
         {% csrf_token %}
         <button type="submit" class="btn btn-danger">Confirmer</button>
-        <a href="{% url 'productprice-list' %}" class="btn btn-secondary">Annuler</a>
+        <a href="{% url 'cartproduct-list' %}" class="btn btn-secondary">Annuler</a>
     </form>
 </div>
 {% endblock %}

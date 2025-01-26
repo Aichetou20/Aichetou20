@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Liste des Prix des Produits{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Liste des Prix des Produits</h1>
+    <a href="{% url 'productprice-create' %}" class="btn btn-success mb-3">Ajouter un Nouveau Prix</a>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Produit</th>
+                <th>Code Produit</th>
+                <th>Prix</th>
+                <th>Date Effective</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for productprice in object_list %}
+            <tr>
+                <td>{{ productprice.id }}</td>
+                <td>{{ productprice.product.name }}</td>
+                <td>{{ productprice.product.code }}</td>
+                <td>{{ productprice.amount }}</td>
+                <td>{{ productprice.effective_date }}</td>
+                <td>
+                    <a href="{% url 'productprice-update' productprice.pk %}" class="btn btn-primary btn-sm">Modifier</a>
+                    <a href="{% url 'productprice-delete' productprice.pk %}" class="btn btn-danger btn-sm">Supprimer</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

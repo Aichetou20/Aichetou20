@@ -53,7 +53,7 @@ ROOT_URLCONF = 'INPC.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # Assurez-vous que ce chemin est correct
+        'DIRS': [BASE_DIR / "templates"],  # Inclure le dossier global des templates
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -65,6 +65,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 
 WSGI_APPLICATION = 'INPC.wsgi.application'
