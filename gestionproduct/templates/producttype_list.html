@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Liste des types de produits</h2>
+    <a href="{% url 'producttype-create' %}" class="btn btn-success mb-3">Créer un nouveau type de produit</a>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Code</th>
+                <th>Label</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producttype in producttypes %}
+            <tr>
+                <td>{{ producttype.code }}</td>
+                <td>{{ producttype.label }}</td>
+                <td>{{ producttype.description }}</td>
+                <td>
+                    <a href="{% url 'producttype-update' producttype.pk %}" class="btn btn-primary btn-sm">Modifier</a>
+                    <a href="{% url 'producttype-delete' producttype.pk %}" class="btn btn-danger btn-sm">Supprimer</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">Aucun type de produit disponible.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

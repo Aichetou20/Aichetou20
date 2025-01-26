@@ -1,0 +1,48 @@
+{% extends "base.html" %}  <!-- Hérite du template de base -->
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Bienvenue sur l'application INPC</h1>
+    <p>Cette application permet de gérer les données nécessaires au calcul de l'Indice National des Prix à la Consommation (INPC).</p>
+
+    <!-- Menu de navigation -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Prix</h5>
+                    <p class="card-text">Gérez les prix des produits dans les points de vente.</p>
+                    <a href="{% url 'prix-list' %}" class="btn btn-primary">Accéder aux prix</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Panier</h5>
+                    <p class="card-text">Gérez les paniers de produits et leurs pondérations.</p>
+                    <a href="{% url 'panier-list' %}" class="btn btn-primary">Accéder aux paniers</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Configurations</h5>
+                    <p class="card-text">Gérez les produits, les points de vente et les structures administratives.</p>
+                    <div class="dropdown">
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                            Configurations
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <li><a class="dropdown-item" href="{% url 'product-list' %}">Produits</a></li>
+                            <li><a class="dropdown-item" href="{% url 'pointofsale-list' %}">Points de vente</a></li>
+                            <li><a class="dropdown-item" href="{% url 'wilaya-list' %}">Structures administratives</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
