@@ -1,14 +1,40 @@
 {% extends 'base.html' %}
 
-{% block title %}Formulaire Prix des Produits{% endblock %}
+{% block title %}
+    {% if object %}Modifier le Prix du Produit{% else %}Créer un Nouveau Prix de Produit{% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="text-center">{{ form.instance.pk|yesno:"Modifier le Prix,Créer un Nouveau Prix" }}</h1>
-    <form method="post" class="mt-4">
+    <h1 class="text-center">
+        {% if object %}Modifier le Prix{% else %}Ajouter un Nouveau Prix{% endif %}
+    </h1>
+    <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">{{ form.instance.pk|yesno:"Mettre à Jour,Créer" }}</button>
+        <div class="mb-3">
+            <label for="id_value" class="form-label">Valeur</label>
+            {{ form.value }}
+        </div>
+        <div class="mb-3">
+            <label for="id_date_from" class="form-label">Date de Début</label>
+            {{ form.date_from }}
+        </div>
+        <div class="mb-3">
+            <label for="id_date_to" class="form-label">Date de Fin</label>
+            {{ form.date_to }}
+        </div>
+        <div class="mb-3">
+            <label for="id_product" class="form-label">Produit</label>
+            {{ form.product }}
+        </div>
+        <div class="mb-3">
+            <label for="id_point_of_sale" class="form-label">Point de Vente</label>
+            {{ form.point_of_sale }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            {% if object %}Mettre à jour{% else %}Créer{% endif %}
+        </button>
         <a href="{% url 'productprice-list' %}" class="btn btn-secondary">Annuler</a>
     </form>
 </div>

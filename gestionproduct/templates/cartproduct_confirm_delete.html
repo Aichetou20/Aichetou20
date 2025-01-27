@@ -4,11 +4,11 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="text-center">Confirmer la Suppression</h1>
-    <p>Êtes-vous sûr de vouloir supprimer <strong>{{ object.product.name }}</strong> du panier <strong>{{ object.cart.name }}</strong> ?</p>
-    <form method="post" class="mt-4">
+    <h1 class="text-center">Supprimer un Produit du Panier</h1>
+    <p>Êtes-vous sûr de vouloir supprimer ce produit ?</p>
+    <form method="post">
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Confirmer</button>
+        <button type="submit" class="btn btn-danger">Supprimer</button>
         <a href="{% url 'cartproduct-list' %}" class="btn btn-secondary">Annuler</a>
     </form>
 </div>

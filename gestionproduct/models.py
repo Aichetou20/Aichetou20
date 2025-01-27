@@ -91,7 +91,7 @@ class CartProducts(models.Model):
 
     def __str__(self):
         return f"{self.product.name} in {self.cart.name} (Weight: {self.weight})"
-from django.db import models
+
 
 
 class ProductType(models.Model):

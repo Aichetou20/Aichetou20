@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 
-{% block title %}Ajouter ou Modifier un Produit dans le Panier{% endblock %}
+{% block title %}Créer une Nouvelle Commune{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="text-center">{{ view.title }}</h1>
+    <h1 class="text-center">Créer une Nouvelle Commune</h1>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-success">Enregistrer</button>
-        <a href="{% url 'cartproduct-list' %}" class="btn btn-secondary">Annuler</a>
+        <a href="{% url 'commune-list' %}" class="btn btn-secondary">Annuler</a>
     </form>
 </div>
 {% endblock %}

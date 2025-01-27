@@ -6,32 +6,65 @@
 <div class="container mt-4">
     <h1 class="text-center">Liste des Prix des Produits</h1>
     <a href="{% url 'productprice-create' %}" class="btn btn-success mb-3">Ajouter un Nouveau Prix</a>
-    <table class="table table-bordered">
-        <thead>
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
             <tr>
-                <th>ID</th>
                 <th>Produit</th>
-                <th>Code Produit</th>
-                <th>Prix</th>
-                <th>Date Effective</th>
+                <th>Point de Vente</th>
+                <th>Valeur</th>
+                <th>Date de Début</th>
+                <th>Date de Fin</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            {% for productprice in object_list %}
+            {% for price in productprices %}
             <tr>
-                <td>{{ productprice.id }}</td>
-                <td>{{ productprice.product.name }}</td>
-                <td>{{ productprice.product.code }}</td>
-                <td>{{ productprice.amount }}</td>
-                <td>{{ productprice.effective_date }}</td>
+                <td>{{ price.product.name }}</td>
+                <td>{{ price.point_of_sale.code }}</td>
+                <td>{{ price.value }}</td>
+                <td>{{ price.date_from }}</td>
+                <td>{{ price.date_to }}</td>
                 <td>
-                    <a href="{% url 'productprice-update' productprice.pk %}" class="btn btn-primary btn-sm">Modifier</a>
-                    <a href="{% url 'productprice-delete' productprice.pk %}" class="btn btn-danger btn-sm">Supprimer</a>
+                    <a href="{% url 'productprice-update' price.pk %}" class="btn btn-primary btn-sm">Modifier</a>
+                    <a href="{% url 'productprice-delete' price.pk %}" class="btn btn-danger btn-sm">Supprimer</a>
                 </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">Aucun prix trouvé.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    <!-- Pagination -->
+    {% if productprices.has_other_pages %}
+    <nav aria-label="Pagination">
+        <ul class="pagination justify-content-center">
+            {% if productprices.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ productprices.previous_page_number }}" aria-label="Précédent">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in productprices.paginator.page_range %}
+            <li class="page-item {% if productprices.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+
+            {% if productprices.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ productprices.next_page_number }}" aria-label="Suivant">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
 </div>
 {% endblock %}

@@ -10,6 +10,7 @@ from .models import Product, ProductType, Wilaya, Moughataa, Commune, PointOfSal
 def home(request):
     return render(request, 'home.html')
 
+
 # ========================
 # Vues pour les Produits
 # ========================
@@ -170,13 +171,13 @@ class CartProductListView(ListView):
 
 class CartProductCreateView(CreateView):
     model = CartProducts
-    fields = ['id', 'product', 'cart_product', 'weight', 'date_from', 'date_to']
+    fields = ['id', 'product', 'cart', 'weight', 'date_from', 'date_to']  # Suppression de cart_product
     template_name = 'cartproduct_form.html'
     success_url = reverse_lazy('cartproduct-list')
 
 class CartProductUpdateView(UpdateView):
     model = CartProducts
-    fields = ['id', 'product', 'cart_product', 'weight', 'date_from', 'date_to']
+    fields = ['id', 'product', 'cart', 'weight', 'date_from', 'date_to']  # Suppression de cart_product
     template_name = 'cartproduct_form.html'
     success_url = reverse_lazy('cartproduct-list')
 

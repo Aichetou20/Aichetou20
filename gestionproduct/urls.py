@@ -23,7 +23,7 @@ from .views import (
 
 urlpatterns = [
     # Home Page
-    path('', home, name='home'),
+    path('',home, name='home'),
 
     # Product URLs
     path('products/', ProductListView.as_view(), name='product-list'),
@@ -52,8 +52,8 @@ urlpatterns = [
     # CartProducts URLs
     path('cartproducts/', CartProductListView.as_view(), name='cartproduct-list'),
     path('cartproducts/create/', CartProductCreateView.as_view(), name='cartproduct-create'),
-    path('cartproducts/<int:pk>/update/', CartProductUpdateView.as_view(), name='cartproduct-update'),
-    path('cartproducts/<int:pk>/delete/', CartProductDeleteView.as_view(), name='cartproduct-delete'),
+    path('cartproducts/<str:pk>/update/', CartProductUpdateView.as_view(), name='cartproduct-update'),
+    path('cartproducts/<str:pk>/delete/', CartProductDeleteView.as_view(), name='cartproduct-delete'),
 
     # Wilaya URLs
     path('wilayas/', WilayaListView.as_view(), name='wilaya-list'),

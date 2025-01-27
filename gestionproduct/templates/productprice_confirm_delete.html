@@ -1,14 +1,25 @@
 {% extends 'base.html' %}
 
-{% block title %}Supprimer le Prix{% endblock %}
+{% block title %}Confirmer la Suppression{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="text-center">Confirmer la Suppression</h1>
-    <p>Êtes-vous sûr de vouloir supprimer le prix pour le produit <strong>{{ object.product.name }}</strong> (Code : {{ object.product.code }}) ?</p>
-    <form method="post" class="mt-4">
+    <h1 class="text-center text-danger">Confirmer la Suppression</h1>
+    <p class="text-center">Êtes-vous sûr de vouloir supprimer le prix suivant ? Cette action est irréversible.</p>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Produit : {{ object.product.name }}</h5>
+            <p class="card-text">Point de Vente : {{ object.point_of_sale.code }}</p>
+            <p class="card-text">Valeur : {{ object.value }}</p>
+            <p class="card-text">Date de Début : {{ object.date_from }}</p>
+            <p class="card-text">Date de Fin : {{ object.date_to }}</p>
+        </div>
+    </div>
+
+    <form method="post" class="text-center">
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Confirmer</button>
+        <button type="submit" class="btn btn-danger">Oui, Supprimer</button>
         <a href="{% url 'productprice-list' %}" class="btn btn-secondary">Annuler</a>
     </form>
 </div>

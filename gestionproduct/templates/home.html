@@ -1,26 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}My Application{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <title>Bienvenue - INPC</title>
+    <!-- Intégration de Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Style personnalisé -->
+    <style>
+        body {
+            background-color: #f7f7f7; /* Fond neutre et professionnel */
+            font-family: 'Arial', sans-serif;
+            color: #2c3e50; /* Texte élégant et lisible */
+        }
+        .navbar {
+            background-color: #34495e; /* Couleur sombre pour le menu */
+        }
+        .navbar-brand {
+            color: #ecf0f1;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        .navbar-brand:hover {
+            color: #bdc3c7;
+        }
+        .header {
+            background: linear-gradient(135deg, #2980b9, #2ecc71); /* Dégradé bleu-vert */
+            padding: 50px 20px;
+            text-align: center;
+            border-radius: 15px;
+            margin-top: 20px;
+            color: #fff;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .header p {
+            font-size: 1.2rem;
+        }
+        .btn-custom {
+            background-color: #2ecc71; /* Vert moderne */
+            color: #fff;
+            font-size: 1.2rem;
+            border-radius: 25px;
+            padding: 10px 30px;
+            text-decoration: none;
+        }
+        .btn-custom:hover {
+            background-color: #27ae60; /* Vert plus sombre au survol */
+            color: #fff;
+        }
+        footer {
+            background-color: #34495e;
+            color: #ecf0f1;
+            text-align: center;
+            padding: 10px 0;
+            margin-top: 30px;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>My Application</h1>
-        <nav>
-            <a href="{% url 'home' %}">Home</a>
-            <a href="{% url 'product-list' %}">Products</a>
-        </nav>
-    </header>
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">INPC</a>
+        </div>
+    </nav>
+
+    <!-- Contenu principal -->
+    <div class="container">
+        <div class="header">
+            <h1>Bienvenue !</h1>
+            <p>Cette application vous permet de gérer vos données efficacement. Explorez vos options en utilisant les menus ci-dessus.</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
     <footer>
-        <p>&copy; 2025 My Application</p>
+        <p>© 2025 INPC. Tous droits réservés.</p>
     </footer>
+
+    <!-- Scripts Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
