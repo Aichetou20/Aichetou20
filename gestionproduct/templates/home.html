@@ -7,26 +7,26 @@
     <title>Bienvenue - INPC</title>
     <!-- Intégration de Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Intégration de FontAwesome -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <!-- Style personnalisé -->
     <style>
         body {
-            background-color: #f7f7f7; /* Fond neutre et professionnel */
+            background-color: #f7f7f7;
             font-family: 'Arial', sans-serif;
-            color: #2c3e50; /* Texte élégant et lisible */
+            color: #2c3e50;
         }
         .navbar {
-            background-color: #34495e; /* Couleur sombre pour le menu */
+            background-color: #34495e;
         }
-        .navbar-brand {
+        .navbar-brand, .nav-link {
             color: #ecf0f1;
-            font-weight: bold;
-            font-size: 1.5rem;
         }
-        .navbar-brand:hover {
+        .navbar-brand:hover, .nav-link:hover {
             color: #bdc3c7;
         }
         .header {
-            background: linear-gradient(135deg, #2980b9, #2ecc71); /* Dégradé bleu-vert */
+            background: linear-gradient(135deg, #2980b9, #2ecc71);
             padding: 50px 20px;
             text-align: center;
             border-radius: 15px;
@@ -40,18 +40,6 @@
         .header p {
             font-size: 1.2rem;
         }
-        .btn-custom {
-            background-color: #2ecc71; /* Vert moderne */
-            color: #fff;
-            font-size: 1.2rem;
-            border-radius: 25px;
-            padding: 10px 30px;
-            text-decoration: none;
-        }
-        .btn-custom:hover {
-            background-color: #27ae60; /* Vert plus sombre au survol */
-            color: #fff;
-        }
         footer {
             background-color: #34495e;
             color: #ecf0f1;
@@ -63,9 +51,45 @@
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">INPC</a>
+            <a class="navbar-brand" href="{% url 'home' %}"><i class="fas fa-chart-line"></i> INPC</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="gestionAdminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-cogs"></i> Gestion Administrative
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="gestionAdminDropdown">
+                            <li><a class="dropdown-item" href="{% url 'wilaya-list' %}">Wilayas</a></li>
+                            <li><a class="dropdown-item" href="{% url 'moughataa-list' %}">Moughataas</a></li>
+                            <li><a class="dropdown-item" href="{% url 'commune-list' %}">Communes</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="gestionProduitDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-box"></i> Gestion de Produit
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="gestionProduitDropdown">
+                            <li><a class="dropdown-item" href="{% url 'product-list' %}">Produits</a></li>
+                            <li><a class="dropdown-item" href="{% url 'producttype-list' %}">Types de Produits</a></li>
+                            <li><a class="dropdown-item" href="{% url 'productprice-list' %}">Prix des Produits</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="panierDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-shopping-cart"></i> Panier et Calculs
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="panierDropdown">
+                            <li><a class="dropdown-item" href="{% url 'cart-list' %}">Paniers</a></li>
+                            <li><a class="dropdown-item" href="{% url 'cartproduct-list' %}">Produits dans le Panier</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
 
@@ -73,7 +97,7 @@
     <div class="container">
         <div class="header">
             <h1>Bienvenue !</h1>
-            <p>Cette application vous permet de gérer vos données efficacement. Explorez vos options en utilisant les menus ci-dessus.</p>
+            <p>Cette application vous permet de gérer vos produits, vos prix et vos localisations efficacement. Utilisez le menu pour naviguer.</p>
         </div>
     </div>
 

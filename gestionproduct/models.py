@@ -1,6 +1,7 @@
 from django.db import models
 
 
+
 class ProductType(models.Model):
     code = models.CharField(max_length=45, unique=True)
     label = models.CharField(max_length=45)

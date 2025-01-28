@@ -1,6 +1,6 @@
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Product, ProductType, Wilaya, Moughataa, Commune, PointOfSale, CartProducts, Cart, ProductPrice
 
 

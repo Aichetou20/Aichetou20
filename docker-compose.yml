@@ -8,7 +8,7 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=INPC.settings  # Explicitly set the settings module
     ports:
-      - "8000:8000"
+      - "23029:8000"  # Expose Django on port 23029 (Matricule)
     depends_on:
       - db
 
@@ -20,6 +20,8 @@ services:
       POSTGRES_PASSWORD: mypassword
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "24029:5432"  # Expose PostgreSQL on port 24029 (Matricule + 1000)
 
 volumes:
   postgres_data:
