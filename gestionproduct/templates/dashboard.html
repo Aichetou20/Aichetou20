@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <!-- Inclure Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        h1 {
+            margin-top: 20px;
+        }
+        .charts-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .chart-box {
+            width: 45%;
+            margin: 2%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+        }
+    </style>
+</head>
+<body>
+    <h1>📊 Tableau de Bord</h1>
+    <p>Analyse des données sur les produits, les prix et les points de vente.</p>
+
+    <div class="charts-container">
+        <!-- 1️⃣ Évolution de l'INPC -->
+        <div class="chart-box">
+            <h2>📈 Évolution de l'INPC</h2>
+            <canvas id="inpcChart"></canvas>
+        </div>
+
+        <!-- 2️⃣ Évolution Moyenne des Prix -->
+        <div class="chart-box">
+            <h2>📉 Évolution des Prix Moyens</h2>
+            <canvas id="priceChart"></canvas>
+        </div>
+
+        <!-- 3️⃣ Répartition des Types de Produits -->
+        <div class="chart-box">
+            <h2>🥧 Répartition des Types de Produits</h2>
+            <canvas id="pieChart"></canvas>
+        </div>
+
+        <!-- 4️⃣ Nombre de Produits par Type -->
+        <div class="chart-box">
+            <h2>📊 Produits par Type</h2>
+            <canvas id="barChart"></canvas>
+        </div>
+
+        <!-- 5️⃣ Nombre de Produits par Point de Vente -->
+        <div class="chart-box">
+            <h2>🏪 Produits par Point de Vente</h2>
+            <canvas id="posChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        function safeJsonParse(jsonData) {
+            try {
+                return JSON.parse(jsonData);
+            } catch (error) {
+                console.error("Erreur de parsing JSON:", error);
+                return [];
+            }
+        }
+
+        const inpcLabels = safeJsonParse('{{ inpc_labels|safe }}');
+        const inpcValues = safeJsonParse('{{ inpc_values|safe }}');
+
+        const priceLabels = safeJsonParse('{{ price_labels|safe }}');
+        const priceValues = safeJsonParse('{{ price_values|safe }}');
+
+        const pieLabels = safeJsonParse('{{ pie_labels|safe }}');
+        const pieData = safeJsonParse('{{ pie_data|safe }}');
+
+        const barLabels = safeJsonParse('{{ bar_labels|safe }}');
+        const barData = safeJsonParse('{{ bar_data|safe }}');
+
+        const posLabels = safeJsonParse('{{ pos_labels|safe }}');
+        const posData = safeJsonParse('{{ pos_data|safe }}');
+
+        new Chart(document.getElementById('inpcChart'), {
+            type: 'line',
+            data: {
+                labels: inpcLabels,
+                datasets: [{ label: 'INPC', data: inpcValues, borderColor: 'blue', fill: true }]
+            }
+        });
+
+        new Chart(document.getElementById('priceChart'), {
+            type: 'line',
+            data: {
+                labels: priceLabels,
+                datasets: [{ label: 'Prix Moyen', data: priceValues, borderColor: 'red', fill: true }]
+            }
+        });
+
+        new Chart(document.getElementById('pieChart'), {
+            type: 'pie',
+            data: {
+                labels: pieLabels,
+                datasets: [{ data: pieData, backgroundColor: ['red', 'blue', 'green', 'yellow', 'purple'] }]
+            }
+        });
+
+        new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: barLabels,
+                datasets: [{ label: 'Produits par Type', data: barData, backgroundColor: 'orange' }]
+            }
+        });
+
+        new Chart(document.getElementById('posChart'), {
+            type: 'bar',
+            data: {
+                labels: posLabels,
+                datasets: [{ label: 'Produits par Point de Vente', data: posData, backgroundColor: 'green' }]
+            }
+        });
+    </script>
+</body>
+</html>

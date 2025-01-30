@@ -1,9 +1,31 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Liste des types de produits</h1>
+<h1>Liste des Types de Produits</h1>
 
-<a href="{% url 'producttype-create' %}" class="btn btn-success mb-3">Créer un type de produit</a>
+<!-- Boutons d'action -->
+<div class="mb-3">
+    <a href="{% url 'producttype-create' %}" class="btn btn-success">Créer un Type de Produit</a>
+    <a href="{% url 'export_producttypes' %}" class="btn btn-info">Exporter en Excel</a>
+</div>
+
+<!-- Formulaire pour l'importation de fichier Excel -->
+<form method="post" enctype="multipart/form-data" action="{% url 'import_producttypes' %}" class="mb-4">
+    {% csrf_token %}
+    <div class="input-group">
+        <input type="file" name="excel_file" class="form-control" required>
+        <button type="submit" class="btn btn-primary">Importer</button>
+    </div>
+</form>
+
+<!-- Affichage des messages de succès ou d'erreur -->
+{% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+{% endif %}
 
 <table class="table table-striped">
     <thead>
@@ -16,7 +38,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for producttype in producttypes %}
+        {% for producttype in object_list %}
         <tr>
             <td>{{ producttype.id }}</td>
             <td>{{ producttype.code }}</td>

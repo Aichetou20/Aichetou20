@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Importer des produits depuis Excel</h2>
+
+{% if messages %}
+<ul>
+    {% for message in messages %}
+        <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="excel_file" required>
+    <button type="submit">Importer</button>
+</form>
+
+<a href="{% url 'export-products' %}">Télécharger la liste des produits (Export Excel)</a>
+
+{% endblock %}

@@ -1,39 +1,55 @@
-{% extends 'base.html' %}
-
-{% block title %}Liste des Produits dans le Panier{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="text-center">Liste des Produits dans le Panier</h1>
-    <a href="{% url 'cartproduct-create' %}" class="btn btn-success mb-3">Ajouter un Produit</a>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Produit</th>
-                <th>Panier</th>
-                <th>Poids</th>
-                <th>Date Début</th>
-                <th>Date Fin</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for cartproduct in cartproducts %}
-            <tr>
-                <td>{{ cartproduct.id }}</td>
-                <td>{{ cartproduct.product.name }}</td>
-                <td>{{ cartproduct.cart.name }}</td>
-                <td>{{ cartproduct.weight }}</td>
-                <td>{{ cartproduct.date_from }}</td>
-                <td>{{ cartproduct.date_to }}</td>
-                <td>
-                    <a href="{% url 'cartproduct-update' cartproduct.pk %}" class="btn btn-primary btn-sm">Modifier</a>
-                    <a href="{% url 'cartproduct-delete' cartproduct.pk %}" class="btn btn-danger btn-sm">Supprimer</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<h1>Liste des Produits dans les Paniers</h1>
+
+<!-- Boutons d'action -->
+<div class="mb-3">
+    <a href="{% url 'cartproduct-create' %}" class="btn btn-success">Ajouter un Produit au Panier</a>
+    <a href="{% url 'export_cartproducts' %}" class="btn btn-info">Exporter en Excel</a>
 </div>
+
+<!-- Formulaire pour l'importation de fichier Excel -->
+<form method="post" enctype="multipart/form-data" action="{% url 'import_cartproducts' %}" class="mb-4">
+    {% csrf_token %}
+    <div class="input-group">
+        <input type="file" name="excel_file" class="form-control" required>
+        <button type="submit" class="btn btn-primary">Importer</button>
+    </div>
+</form>
+
+<!-- Affichage des messages de succès ou d'erreur -->
+{% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+{% endif %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>ID Panier</th>
+            <th>Produit</th>
+            <th>Poids</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cartproduct in object_list %}
+        <tr>
+            <td>{{ cartproduct.id }}</td>
+            <td>{{ cartproduct.cart.id }}</td>
+            <td>{{ cartproduct.product.code }} - {{ cartproduct.product.name }}</td>
+            <td>{{ cartproduct.weight }}</td>  {# Changement de `quantity` à `weight` #}
+            <td>
+                <a href="{% url 'cartproduct-update' cartproduct.pk %}" class="btn btn-primary btn-sm">Modifier</a>
+                <a href="{% url 'cartproduct-delete' cartproduct.pk %}" class="btn btn-danger btn-sm">Supprimer</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}

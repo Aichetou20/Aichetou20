@@ -3,7 +3,29 @@
 {% block content %}
 <h1>Liste des Produits</h1>
 
-<a href="{% url 'product-create' %}" class="btn btn-success mb-3">Créer un produit</a>
+<!-- Boutons d'action -->
+<div class="mb-3">
+    <a href="{% url 'product-create' %}" class="btn btn-success">Créer un produit</a>
+    <a href="{% url 'export_products' %}" class="btn btn-info">Exporter en Excel</a>
+</div>
+
+<!-- Formulaire pour l'importation de fichier Excel (dans la même page) -->
+<form method="post" enctype="multipart/form-data" action="{% url 'import_products' %}" class="mb-4">
+    {% csrf_token %}
+    <div class="input-group">
+        <input type="file" name="excel_file" class="form-control" required>
+        <button type="submit" class="btn btn-primary">Importer</button>
+    </div>
+</form>
+
+<!-- Affichage des messages de succès ou d'erreur -->
+{% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+{% endif %}
 
 <table class="table table-striped">
     <thead>

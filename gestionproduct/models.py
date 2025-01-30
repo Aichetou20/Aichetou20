@@ -1,6 +1,19 @@
 from django.db import models
 
 
+from django.db import models
+
+class INPC(models.Model):
+    year = models.IntegerField()
+    month = models.IntegerField()
+    inpc_value = models.FloatField()
+
+    class Meta:
+        unique_together = ('year', 'month')  # Évite les doublons pour un même mois et année
+
+    def __str__(self):
+        return f"INPC {self.year}-{self.month}: {self.inpc_value}"
+
 
 class ProductType(models.Model):
     code = models.CharField(max_length=45, unique=True)
@@ -9,6 +22,7 @@ class ProductType(models.Model):
 
     def __str__(self):
         return self.label
+    
 
 
 class Product(models.Model):

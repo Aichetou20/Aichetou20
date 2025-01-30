@@ -1,33 +1,57 @@
-{% extends 'base.html' %}
-
-{% block title %}Liste des Paniers{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="text-center">Liste des Paniers</h1>
-    <a href="{% url 'cart-create' %}" class="btn btn-success mb-3">Créer un nouveau Panier</a>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Code</th>
-                <th>Nom</th>
-                <th>Description</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for cart in object_list %}
-            <tr>
-                <td>{{ cart.code }}</td>
-                <td>{{ cart.name }}</td>
-                <td>{{ cart.description }}</td>
-                <td>
-                    <a href="{% url 'cart-update' cart.pk %}" class="btn btn-primary btn-sm">Modifier</a>
-                    <a href="{% url 'cart-delete' cart.pk %}" class="btn btn-danger btn-sm">Supprimer</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<h1>Liste des Paniers</h1>
+
+<!-- Boutons d'action -->
+<div class="mb-3">
+    <a href="{% url 'cart-create' %}" class="btn btn-success">Créer un Panier</a>
+    <a href="{% url 'export_carts' %}" class="btn btn-info">Exporter en Excel</a>
 </div>
+
+<!-- Formulaire pour l'importation de fichier Excel -->
+<form method="post" enctype="multipart/form-data" action="{% url 'import_carts' %}" class="mb-4">
+    {% csrf_token %}
+    <div class="input-group">
+        <input type="file" name="excel_file" class="form-control" required>
+        <button type="submit" class="btn btn-primary">Importer</button>
+    </div>
+</form>
+
+<!-- Affichage des messages de succès ou d'erreur -->
+{% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            {{ message }}
+        {% endfor %}
+    </div>
+{% endif %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Code</th>
+            <th>Nom</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cart in carts %}
+        <tr>
+            <td>{{ cart.id }}</td>
+            <td>{{ cart.code }}</td>
+            <td>{{ cart.name }}</td>
+            <td>{{ cart.description }}</td>
+            <td>
+                <a href="{% url 'cart-update' cart.pk %}" class="btn btn-primary btn-sm">Modifier</a>
+                <a href="{% url 'cart-delete' cart.pk %}" class="btn btn-danger btn-sm">Supprimer</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">Aucun panier disponible.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}

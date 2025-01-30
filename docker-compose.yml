@@ -3,26 +3,22 @@ services:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - .:/app  # Mount the current directory to /app in the container
-      - static_volume:/app/staticfiles
-    environment:
-      - DJANGO_SETTINGS_MODULE=INPC.settings  # Explicitly set the settings module
+      - .:/app  # Monte le répertoire actuel dans /app dans le conteneur
     ports:
-      - "23029:8000"  # Expose Django on port 23029 (Matricule)
+      - "23029:8000"  # Expose Django sur le port 23029 (Matricule)
     depends_on:
       - db
 
   db:
     image: postgres:13
     environment:
-      POSTGRES_DB: mydatabase
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
+      - POSTGRES_DB=mydatabase
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
-      - "24029:5432"  # Expose PostgreSQL on port 24029 (Matricule + 1000)
+      - "24029:5432"  # Expose PostgreSQL sur le port 24029 (Matricule + 1000)
 
 volumes:
   postgres_data:
-  static_volume:
