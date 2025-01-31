@@ -7,7 +7,7 @@ services:
       - media_volume:/app/media
       - /var/log:/var/log  # For logging
     ports:
-      - "23029:8000"
+      - "0.0.0.0:23029:8000"
     depends_on:
       db23029:
         condition: service_healthy
@@ -27,7 +27,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
-      - "24029:5432"
+      - "0.0.0.0:24029:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"]
       interval: 5s

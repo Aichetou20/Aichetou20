@@ -12,10 +12,7 @@ DEBUG = True  # Temporarily enabled for debugging
 
 # Sécuriser ALLOWED_HOSTS (ajouter ton IP et ton domaine)
 ALLOWED_HOSTS = [
-    '138.201.52.29',
-    'localhost',
-    '0.0.0.0',
-    '127.0.0.1',
+    '*'
 ]
 
 # Configuration for proxy and CSRF
