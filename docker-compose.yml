@@ -3,6 +3,8 @@ services:
     build: .
     volumes:
       - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
     ports:
       - "23029:8000"
     depends_on:
@@ -12,6 +14,11 @@ services:
       - POSTGRES_DB=mydatabase
       - POSTGRES_USER=myuser
       - POSTGRES_PASSWORD=mypassword
+      - DJANGO_DEBUG=True
+    command: >
+      bash -c "python manage.py collectstatic --noinput &&
+               python manage.py migrate &&
+               python manage.py runserver 0.0.0.0:8000"
 
   db23029:
     image: postgres:13
@@ -31,3 +38,5 @@ services:
 
 volumes:
   postgres_data:
+  static_volume:
+  media_volume:
