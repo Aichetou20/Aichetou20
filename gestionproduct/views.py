@@ -25,18 +25,20 @@ from django.shortcuts import render
 from .models import INPC
 
 def home(request):
-    # Récupérer les 4 derniers INPC triés par date décroissante
-    last_4_inpc = INPC.objects.order_by('-year', '-month')[:4]
-    
-    # Convertir les données en JSON
-    inpc_data = list(last_4_inpc.values('year', 'month', 'inpc_value'))
-    inpc_data_json = json.dumps(inpc_data)
-    
-    # Passer les données au template
+    """
+    Home page view that shows different content for authenticated and anonymous users.
+    """
     context = {
-        'inpc_data': last_4_inpc,          # Pour le tableau
-        'inpc_data_json': inpc_data_json   # Pour les graphiques
+        'title': 'Accueil - INPC',
+        'is_authenticated': request.user.is_authenticated,
     }
+    
+    if request.user.is_authenticated:
+        # Add any user-specific data here
+        context.update({
+            'username': request.user.username,
+        })
+    
     return render(request, 'home.html', context)
 
 
@@ -551,7 +553,6 @@ def import_product_prices_from_excel(request):
 def product_prices_list(request):
     product_prices = ProductPrice.objects.all().values('id', 'product__code', 'product__name', 'value', 'date_from', 'date_to')
     return render(request, 'product_prices_list.html', {'product_prices': product_prices})
-print(list(ProductPrice.objects.all().values()))
 
 
 

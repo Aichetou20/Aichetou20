@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load form_tags %}
+
+{% block title %}Connexion - INPC{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #1a1a1a;
+        color: #e0e0e0;
+    }
+    .auth-card {
+        background-color: #2d2d2d;
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+    .form-control {
+        background-color: #383838;
+        border: 1px solid #4a4a4a;
+        color: #e0e0e0;
+    }
+    .form-control:focus {
+        background-color: #404040;
+        border-color: #666;
+        color: #e0e0e0;
+        box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25);
+    }
+    .btn-dark {
+        background-color: #333;
+        border-color: #444;
+    }
+    .btn-dark:hover {
+        background-color: #404040;
+        border-color: #555;
+    }
+    .text-muted {
+        color: #888 !important;
+    }
+    .alert {
+        background-color: #2d2d2d;
+        border-color: #404040;
+        color: #e0e0e0;
+    }
+    .alert-danger {
+        background-color: #442726;
+        border-color: #582826;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card auth-card">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-person-circle display-4 mb-3"></i>
+                        <h2 class="mb-3">Connexion</h2>
+                        <p class="text-muted">Connectez-vous pour accéder à votre compte</p>
+                    </div>
+
+                    {% if form.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Nom d'utilisateur ou mot de passe incorrect.
+                    </div>
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">
+                                <i class="bi bi-person-fill me-2"></i>Nom d'utilisateur
+                            </label>
+                            {{ form.username|addclass:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.password.id_for_label }}" class="form-label">
+                                <i class="bi bi-lock-fill me-2"></i>Mot de passe
+                            </label>
+                            {{ form.password|addclass:"form-control" }}
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-dark btn-lg">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="mb-0">
+                            Pas encore de compte ? 
+                            <a href="{% url 'register' %}" class="text-secondary text-decoration-none">
+                                <i class="bi bi-person-plus-fill me-1"></i>Inscrivez-vous
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

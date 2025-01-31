@@ -16,24 +16,59 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">INPC</a>
+            <a class="navbar-brand" href="/">INPC</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <!-- Lien Accueil -->
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Accueil</a>
+                        <a class="nav-link" href="/">Accueil</a>
                     </li>
-                    
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Produits</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Panier</a>
+                    </li>
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <span class="nav-link">Bienvenue, {{ user.username }}</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Déconnexion</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Connexion</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register' %}">Inscription</a>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
 
+    <!-- Messages -->
+    {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <!-- Contenu principal -->
-    <div class="container mt-5">
+    <div class="container mt-4">
         {% block content %}
         <h1>Bienvenue</h1>
         <p>Ce modèle est configuré pour être totalement neutre, sans dépendance à des bases de données.</p>
@@ -42,7 +77,7 @@
 
     <!-- Footer -->
     <footer class="bg-dark text-center text-white py-3 mt-5">
-        <p class="mb-0">© 2025 INPC. Tous droits réservés.</p>
+        <p class="mb-0"> 2025 INPC. Tous droits réservés.</p>
     </footer>
 
     <!-- Scripts Bootstrap -->

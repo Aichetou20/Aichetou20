@@ -1,23 +1,19 @@
 import os
 from pathlib import Path
 
-# 📌 Définition du répertoire de base
+# Définition du répertoire de base
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# 📌 Clé secrète (Utiliser une variable d'environnement en production)
+# Clé secrète (Utiliser une variable d'environnement en production)
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-(1)n9*^=@z=em5)&84om#!p$-)0zlbl&-tp-zf)!l2%b&drm#q')
 
-# 📌 Désactiver DEBUG en production
+# Désactiver DEBUG en production
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
-# 📌 Sécuriser ALLOWED_HOSTS (ajouter ton IP et ton domaine)
-ALLOWED_HOSTS = [
-    '0.0.0.0', 'localhost', '127.0.0.1',
-    '138.201.52.29',  # IP de ton serveur
-    'your-domain.com'  # Ton domaine si tu en as un
-]
+# Sécuriser ALLOWED_HOSTS (ajouter ton IP et ton domaine)
+ALLOWED_HOSTS = ['*']  # Allow all hosts
 
-# 📌 Sécuriser CSRF_TRUSTED_ORIGINS pour accepter les requêtes externes
+# Sécuriser CSRF_TRUSTED_ORIGINS pour accepter les requêtes externes
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost',
     'http://0.0.0.0',
@@ -25,7 +21,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://your-domain.com'  # Ton domaine si HTTPS activé
 ]
 
-# 📌 Applications installées
+# Applications installées
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -34,9 +30,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'gestionproduct',
+    'accounts',  # Add accounts app
 ]
 
-# 📌 Middleware
+# Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -47,14 +44,18 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# 📌 Fichier de configuration des URLs
+# Fichier de configuration des URLs
 ROOT_URLCONF = 'INPC.urls'
 
-# 📌 Configuration des templates
+# Configuration des templates
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],
+        'DIRS': [
+            BASE_DIR / "templates",
+            BASE_DIR / "accounts" / "templates",
+            BASE_DIR / "gestionproduct" / "templates",
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -67,10 +68,10 @@ TEMPLATES = [
     },
 ]
 
-# 📌 WSGI
+# WSGI
 WSGI_APPLICATION = 'INPC.wsgi.application'
 
-# 📌 Configuration de la Base de Données (PostgreSQL avec Docker)
+# Configuration de la Base de Données (PostgreSQL avec Docker)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -82,7 +83,7 @@ DATABASES = {
     }
 }
 
-# 📌 Configuration des mots de passe
+# Configuration des mots de passe
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -90,36 +91,36 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# 📌 Langue et fuseau horaire
+# Langue et fuseau horaire
 LANGUAGE_CODE = 'fr'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# 📌 Fichiers statiques (collecte pour le déploiement)
+# Fichiers statiques (collecte pour le déploiement)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# 📌 Configuration des fichiers médias
+# Configuration des fichiers médias
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# 📌 Configuration de la session (ajustable selon besoin)
+# Configuration de la session (ajustable selon besoin)
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
 SESSION_COOKIE_AGE = 1209600  # 2 semaines
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-SESSION_COOKIE_SECURE = False  # ⚠️ Mettre True si HTTPS activé
+SESSION_COOKIE_SECURE = False  # Mettre True si HTTPS activé
 
-# 📌 Sécurité (à activer si HTTPS)
+# Sécurité (à activer si HTTPS)
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_SSL_REDIRECT = False  # ⚠️ Mettre True si HTTPS activé
-SESSION_COOKIE_SECURE = False  # ⚠️ True si HTTPS
-CSRF_COOKIE_SECURE = False  # ⚠️ True si HTTPS
+SECURE_SSL_REDIRECT = False  # Mettre True si HTTPS activé
+SESSION_COOKIE_SECURE = False  # True si HTTPS
+CSRF_COOKIE_SECURE = False  # True si HTTPS
 X_FRAME_OPTIONS = 'DENY'
 
-# 📌 Configuration des logs
+# Configuration des logs
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -139,14 +140,17 @@ LOGGING = {
     },
 }
 
-# 📌 Configuration des redirections après login/logout
+# Authentication settings
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
-# 📌 Sécurité derrière un proxy (ex: Nginx)
+# Message settings
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
+# Sécurité derrière un proxy (ex: Nginx)
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')
 
-# 📌 Définition du champ ID par défaut
+# Définition du champ ID par défaut
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

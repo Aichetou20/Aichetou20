@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% load form_tags %}
+
+{% block title %}Inscription - INPC{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background-color: #1a1a1a;
+        color: #e0e0e0;
+    }
+    .auth-card {
+        background-color: #2d2d2d;
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+    .form-control {
+        background-color: #383838;
+        border: 1px solid #4a4a4a;
+        color: #e0e0e0;
+    }
+    .form-control:focus {
+        background-color: #404040;
+        border-color: #666;
+        color: #e0e0e0;
+        box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.25);
+    }
+    .btn-dark {
+        background-color: #333;
+        border-color: #444;
+    }
+    .btn-dark:hover {
+        background-color: #404040;
+        border-color: #555;
+    }
+    .text-muted {
+        color: #888 !important;
+    }
+    .alert {
+        background-color: #2d2d2d;
+        border-color: #404040;
+        color: #e0e0e0;
+    }
+    .alert-danger {
+        background-color: #442726;
+        border-color: #582826;
+    }
+    .help-text {
+        font-size: 0.875rem;
+        color: #888;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card auth-card shadow-sm">
+                <div class="card-header bg-dark text-white text-center py-3">
+                    <h4 class="mb-0">Créer un compte</h4>
+                </div>
+                <div class="card-body p-4">
+                    {% if form.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Veuillez corriger les erreurs ci-dessous.
+                    </div>
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Username field -->
+                        <div class="mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">
+                                <i class="bi bi-person-fill me-2"></i>Nom d'utilisateur
+                            </label>
+                            {{ form.username|addclass:"form-control" }}
+                            {% if form.username.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.username.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                            {% if form.username.help_text %}
+                            <div class="form-text text-muted">
+                                <i class="bi bi-info-circle me-1"></i>{{ form.username.help_text }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Password field -->
+                        <div class="mb-3">
+                            <label for="{{ form.password1.id_for_label }}" class="form-label">
+                                <i class="bi bi-lock-fill me-2"></i>Mot de passe
+                            </label>
+                            {{ form.password1|addclass:"form-control" }}
+                            {% if form.password1.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.password1.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                            {% if form.password1.help_text %}
+                            <div class="form-text text-muted">
+                                <i class="bi bi-shield-lock me-1"></i>
+                                <small>{{ form.password1.help_text|linebreaksbr }}</small>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Password confirmation field -->
+                        <div class="mb-4">
+                            <label for="{{ form.password2.id_for_label }}" class="form-label">
+                                <i class="bi bi-lock-fill me-2"></i>Confirmer le mot de passe
+                            </label>
+                            {{ form.password2|addclass:"form-control" }}
+                            {% if form.password2.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.password2.errors|join:", " }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-dark btn-lg">
+                                <i class="bi bi-person-plus-fill me-2"></i>S'inscrire
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light text-center py-3">
+                    <p class="mb-0">
+                        Déjà un compte ? 
+                        <a href="{% url 'login' %}" class="text-dark text-decoration-none">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Connectez-vous
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
