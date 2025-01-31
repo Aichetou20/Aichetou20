@@ -2,3 +2,5 @@ Django==4.2
 psycopg2-binary==2.9.6
 pandas
 openpyxl
+gunicorn==21.2.0
+whitenoise==6.5.0  # For serving static files

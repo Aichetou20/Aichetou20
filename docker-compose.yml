@@ -5,6 +5,7 @@ services:
       - .:/app
       - static_volume:/app/staticfiles
       - media_volume:/app/media
+      - /var/log:/var/log  # For logging
     ports:
       - "23029:8000"
     depends_on:
@@ -14,11 +15,8 @@ services:
       - POSTGRES_DB=mydatabase
       - POSTGRES_USER=myuser
       - POSTGRES_PASSWORD=mypassword
-      - DJANGO_DEBUG=True
-    command: >
-      bash -c "python manage.py collectstatic --noinput &&
-               python manage.py migrate &&
-               python manage.py runserver 0.0.0.0:8000"
+      - DJANGO_DEBUG=False  # Set to False for production
+    command: bash /app/start.sh
 
   db23029:
     image: postgres:13
