@@ -8,24 +8,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-(1)n9*^=@z=em5)&84om#!p$-)0zlbl&-tp-zf)!l2%b&drm#q')
 
 # Désactiver DEBUG en production
-DEBUG = True  # Temporarily enabled for debugging
+DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
 # Sécuriser ALLOWED_HOSTS (ajouter ton IP et ton domaine)
-ALLOWED_HOSTS = [
-    '*'
-]
-
-# Configuration for proxy and CSRF
-USE_X_FORWARDED_HOST = True
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')
-CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:23029',
-    'http://0.0.0.0:23029',
-    'http://127.0.0.1:23029',
-    'http://138.201.52.29:23029',
-]
+ALLOWED_HOSTS = ['*']  # Allow all hosts
 
 # Sécuriser CSRF_TRUSTED_ORIGINS pour accepter les requêtes externes
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost',
+    'http://0.0.0.0',
+    'http://138.201.52.29',
+    'https://your-domain.com'  # Ton domaine si HTTPS activé
+]
 
 # Applications installées
 INSTALLED_APPS = [
@@ -34,16 +28,14 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'whitenoise.runserver_nostatic',  
     'django.contrib.staticfiles',
     'gestionproduct',
-    'accounts',  
+    'accounts',  # Add accounts app
 ]
 
 # Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -106,78 +98,46 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# Static and Media Files Configuration
+# Fichiers statiques (collecte pour le déploiement)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
 
-# Whitenoise configuration
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-WHITENOISE_MAX_AGE = 31536000  # 1 year in seconds
-
+# Configuration des fichiers médias
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Security Settings
+# Configuration de la session (ajustable selon besoin)
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+SESSION_COOKIE_AGE = 1209600  # 2 semaines
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_SECURE = False  # Mettre True si HTTPS activé
+
+# Sécurité (à activer si HTTPS)
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_SSL_REDIRECT = False  # Mettre True si HTTPS activé
+SESSION_COOKIE_SECURE = False  # True si HTTPS
+CSRF_COOKIE_SECURE = False  # True si HTTPS
 X_FRAME_OPTIONS = 'DENY'
-CSRF_COOKIE_SECURE = False  # Set to True if using HTTPS
-SESSION_COOKIE_SECURE = False  # Set to True if using HTTPS
-SECURE_SSL_REDIRECT = False  # Set to True if using HTTPS
 
-# Session Configuration
-SESSION_ENGINE = "django.contrib.sessions.backends.db"
-SESSION_COOKIE_AGE = 1209600  # 2 weeks
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False
-
-# Logging Configuration
+# Configuration des logs
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
-        },
-    },
     'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
-            'level': 'DEBUG',
-        },
         'file': {
+            'level': 'ERROR',
             'class': 'logging.FileHandler',
             'filename': '/var/log/django_errors.log',
-            'formatter': 'verbose',
-            'level': 'DEBUG',
         },
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'django.request': {
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',
+            'handlers': ['file'],
+            'level': 'ERROR',
             'propagate': True,
         },
     },
-}
-
-# Email Configuration (if needed)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-# Cache Configuration (if needed)
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-    }
 }
 
 # Authentication settings
@@ -187,6 +147,10 @@ LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 # Message settings
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
+# Sécurité derrière un proxy (ex: Nginx)
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')
 
 # Définition du champ ID par défaut
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

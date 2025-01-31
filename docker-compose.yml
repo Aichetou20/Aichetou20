@@ -3,11 +3,8 @@ services:
     build: .
     volumes:
       - .:/app
-      - static_volume:/app/staticfiles
-      - media_volume:/app/media
-      - /var/log:/var/log  # For logging
     ports:
-      - "0.0.0.0:23029:8000"
+      - "23029:8000"
     depends_on:
       db23029:
         condition: service_healthy
@@ -15,8 +12,6 @@ services:
       - POSTGRES_DB=mydatabase
       - POSTGRES_USER=myuser
       - POSTGRES_PASSWORD=mypassword
-      - DJANGO_DEBUG=False  # Set to False for production
-    command: bash /app/start.sh
 
   db23029:
     image: postgres:13
@@ -27,7 +22,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
-      - "0.0.0.0:24029:5432"
+      - "24029:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"]
       interval: 5s
@@ -36,5 +31,3 @@ services:
 
 volumes:
   postgres_data:
-  static_volume:
-  media_volume:
