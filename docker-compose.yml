@@ -1,15 +1,15 @@
 services:
-  web:
+  web23029:  # Inclure le matricule
     build: .
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - .:/app  # Monte le répertoire actuel dans /app dans le conteneur
+      - .:/app
     ports:
-      - "23029:8000"  # Expose Django sur le port 23029 (Matricule)
+      - "23029:8000"
     depends_on:
-      - db
+      - db23029
 
-  db:
+  db23029:
     image: postgres:13
     environment:
       - POSTGRES_DB=mydatabase
@@ -18,7 +18,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     ports:
-      - "24029:5432"  # Expose PostgreSQL sur le port 24029 (Matricule + 1000)
+      - "24029:5432"
 
 volumes:
   postgres_data:
+
+

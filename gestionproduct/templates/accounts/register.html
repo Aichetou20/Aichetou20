@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Inscription - INPC</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header>🌍 INPC - Inscription</header>
+    <section>
+        <h1>Inscription</h1>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">S'inscrire</button>
+        </form>
+        <p>Déjà inscrit ? <a href="{% url 'login' %}">Se connecter</a></p>
+    </section>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion - INPC</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header>🌍 INPC - Connexion</header>
+    <section>
+        <h1>Connexion</h1>
+        <form method="POST">
+            {% csrf_token %}
+            <label for="id_username">Nom d’utilisateur :</label>
+            {{ form.username }}
+            <label for="id_password">Mot de passe :</label>
+            {{ form.password }}
+            <button type="submit">Se connecter</button>
+        </form>
+        <p>Pas encore de compte ? <a href="{% url 'register' %}">S'inscrire</a></p>
+    </section>
+</body>
+</html>

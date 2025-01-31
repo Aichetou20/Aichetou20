@@ -1,18 +1,68 @@
+/* Global */
 body {
-    background-color: #f8f9fa;
     font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    text-align: center;
 }
 
-h1, .navbar-brand {
-    color: #343a40 !important;
+/* Header */
+header {
+    background: linear-gradient(90deg, #028a0f, #ffd700, #e31b23);
+    color: white;
+    padding: 20px;
+    font-size: 28px;
+    font-weight: bold;
 }
 
-.lead {
-    color: #6c757d;
+/* Section principale */
+section {
+    margin: 50px auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 400px;
+    background: white;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
 }
 
-footer {
-    position: fixed;
-    bottom: 0;
+/* Formulaire */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
     width: 100%;
+}
+
+button {
+    padding: 10px;
+    background: #028a0f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #026d0c;
+}
+
+/* Lien d'inscription */
+p a {
+    color: #028a0f;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+p a:hover {
+    text-decoration: underline;
 }
