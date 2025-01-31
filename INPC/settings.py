@@ -8,10 +8,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-(1)n9*^=@z=em5)&84om#!p$-)0zlbl&-tp-zf)!l2%b&drm#q')
 
 # Désactiver DEBUG en production
-DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
+DEBUG = True  # Temporarily enabled for debugging
 
 # Sécuriser ALLOWED_HOSTS (ajouter ton IP et ton domaine)
 ALLOWED_HOSTS = ['138.201.52.29', 'localhost', '0.0.0.0']  # Allow specific hosts
+
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')
 
 # Sécuriser CSRF_TRUSTED_ORIGINS pour accepter les requêtes externes
 CSRF_TRUSTED_ORIGINS = [
@@ -124,16 +127,20 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'DEBUG',
+        },
         'file': {
-            'level': 'ERROR',
+            'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': '/var/log/django_errors.log',
         },
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
-            'level': 'ERROR',
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
             'propagate': True,
         },
     },
