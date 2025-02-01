@@ -11,14 +11,14 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-(1)n9*^=@z=em5)&84o
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 
 # Sécuriser ALLOWED_HOSTS (ajouter ton IP et ton domaine)
-ALLOWED_HOSTS = ['*']  # Allow all hosts
+ALLOWED_HOSTS = ['*', 'teaching.sidi.xyz']  # Allow all hosts
 
 # Sécuriser CSRF_TRUSTED_ORIGINS pour accepter les requêtes externes
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost',
     'http://0.0.0.0',
     'http://138.201.52.29',
-    'https://your-domain.com'  # Ton domaine si HTTPS activé
+    'http://teaching.sidi.xyz:25029'  # Ton domaine si HTTPS activé
 ]
 
 # Applications installées
