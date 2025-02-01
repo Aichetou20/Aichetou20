@@ -20,5 +20,5 @@ USER myuser
 
 EXPOSE 8000
 
-# Use gunicorn for production
-CMD ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py seed_data && gunicorn INPC.wsgi:application --bind 0.0.0.0:8000"]
+# Use Django development server
+CMD ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py seed_data && python manage.py runserver 0.0.0.0:8000"]
