@@ -128,12 +128,16 @@ LOGGING = {
         'file': {
             'level': 'ERROR',
             'class': 'logging.FileHandler',
-            'filename': '/var/log/django_errors.log',
+            'filename': str(BASE_DIR / 'django_errors.log'),
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'DEBUG',
         },
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
+            'handlers': ['file', 'console'],
             'level': 'ERROR',
             'propagate': True,
         },
