@@ -70,15 +70,17 @@
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
+                            <th>Code</th>
                             <th>Nom</th>
                             <th>Description</th>
                             <th class="text-end" style="width: 200px">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for producttype in object_list %}
+                        {% for producttype in producttypes %}
                         <tr>
-                            <td>{{ producttype.name }}</td>
+                            <td>{{ producttype.code }}</td>
+                            <td>{{ producttype.label }}</td>
                             <td>{{ producttype.description|default:'-' }}</td>
                             <td>
                                 <div class="d-flex justify-content-end gap-2">
@@ -93,7 +95,7 @@
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="3" class="text-center py-4 text-muted">
+                            <td colspan="4" class="text-center py-4 text-muted">
                                 <i class="fas fa-tags fa-2x mb-3 d-block"></i>
                                 Aucun type de produit trouvé
                             </td>

@@ -16,9 +16,10 @@
                     <div class="text-center mb-4">
                         <i class="fas fa-tags fa-3x text-muted mb-3"></i>
                         <h5>Êtes-vous sûr de vouloir supprimer ce type de produit ?</h5>
-                        <div class="alert alert-light mt-3">
+                        <div class="alert alert-light border mt-3">
                             <h6 class="mb-2">Détails du type de produit :</h6>
-                            <p class="mb-1"><strong>Nom :</strong> {{ object.name }}</p>
+                            <p class="mb-1"><strong>Code :</strong> {{ object.code }}</p>
+                            <p class="mb-1"><strong>Nom :</strong> {{ object.label }}</p>
                             {% if object.description %}
                             <p class="mb-1"><strong>Description :</strong> {{ object.description }}</p>
                             {% endif %}

@@ -454,15 +454,30 @@ class CartProductListView(ListView):
 
 class CartProductCreateView(CreateView):
     model = CartProducts
-    fields = ['id', 'product', 'cart', 'weight', 'date_from', 'date_to']  # Suppression de cart_product
+    fields = ['product', 'cart', 'weight', 'date_from', 'date_to']
     template_name = 'cartproduct_form.html'
     success_url = reverse_lazy('cartproduct-list')
 
+    def form_valid(self, form):
+        """
+        Vérifie que le formulaire est valide avant d'enregistrer l'objet.
+        """
+        cartproduct = form.save(commit=False)
+        cartproduct.save()
+        return redirect(self.success_url)
+
+
 class CartProductUpdateView(UpdateView):
     model = CartProducts
-    fields = ['id', 'product', 'cart', 'weight', 'date_from', 'date_to']  # Suppression de cart_product
+    fields = ['product', 'cart', 'weight', 'date_from', 'date_to']
     template_name = 'cartproduct_form.html'
     success_url = reverse_lazy('cartproduct-list')
+
+    def form_valid(self, form):
+        cartproduct = form.save(commit=False)
+        cartproduct.save()
+        return redirect(self.success_url)
+
 
 class CartProductDeleteView(DeleteView):
     model = CartProducts
@@ -520,6 +535,65 @@ def import_cartproducts_from_excel(request):
         return HttpResponseRedirect(reverse('cartproducts-list'))  # Redirection vers la liste des produits dans les paniers
 
     return HttpResponseRedirect(reverse('cartproducts-list'))  # Si pas de fichier, retour à la liste des produits dans les paniers
+
+import pandas as pd
+from django.http import HttpResponse
+from django.contrib import messages
+from django.shortcuts import redirect
+from .models import PointOfSale, Commune
+
+def export_pointofsales_to_excel(request):
+    """Exporter la liste des points de vente sous format Excel"""
+    points_of_sale = PointOfSale.objects.all().values('code', 'type', 'gps_lat', 'gps_lon', 'commune__name')
+
+    df = pd.DataFrame(points_of_sale)
+    df.rename(columns={'commune__name': 'commune'}, inplace=True)
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename=points_of_sale.xlsx'
+
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='PointsDeVente')
+
+    return response
+
+
+
+from django.urls import reverse
+from django.http import HttpResponseRedirect
+
+def import_pointofsales_from_excel(request):
+    """Importer des points de vente depuis un fichier Excel"""
+    if request.method == 'POST' and request.FILES.get('excel_file'):
+        excel_file = request.FILES['excel_file']
+
+        try:
+            df = pd.read_excel(excel_file, engine='openpyxl')
+
+            for _, row in df.iterrows():
+                try:
+                    commune = Commune.objects.get(name=row['commune'])  # Vérifie si la commune existe
+
+                    PointOfSale.objects.update_or_create(
+                        code=row['code'],
+                        defaults={
+                            'type': row['type'],
+                            'gps_lat': row['gps_lat'],
+                            'gps_lon': row['gps_lon'],
+                            'commune': commune
+                        }
+                    )
+                except Commune.DoesNotExist:
+                    messages.error(request, f"Commune '{row['commune']}' non trouvée.")
+
+            messages.success(request, "Importation des points de vente réussie !")
+        except Exception as e:
+            messages.error(request, f"Erreur lors de l'importation : {e}")
+
+        return HttpResponseRedirect(reverse('pointofsale-list'))  # Redirection vers la liste des points de vente
+
+    return HttpResponseRedirect(reverse('pointofsale-list'))  # Si pas de fichier, retour à la liste des points de vente
+
 
 
 

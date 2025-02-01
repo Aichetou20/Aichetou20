@@ -83,6 +83,11 @@ urlpatterns = [
     path('pointofsales/create/', views.PointOfSaleCreateView.as_view(), name='pointofsale-create'),
     path('pointofsales/<int:pk>/update/', views.PointOfSaleUpdateView.as_view(), name='pointofsale-update'),
     path('pointofsales/<int:pk>/delete/', views.PointOfSaleDeleteView.as_view(), name='pointofsale-delete'),
+    # ✅ Ajouter l'URL d'importation
+    path('pointofsales/import/', views.import_pointofsales_from_excel, name='import_pointofsales'),
+
+    # ✅ Ajouter une URL pour l'exportation
+    path('pointofsales/export/', views.export_pointofsales_to_excel, name='export_pointofsales'),
     path('export-products/', views.export_products_to_excel, name='export_products'),
     path('import-products/', views.import_products_from_excel, name='import_products')
 

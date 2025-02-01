@@ -1,37 +1,130 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block title %}Liste des Points de Vente{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="text-center">Liste des Points de Vente</h1>
-    <a href="{% url 'pointofsale-create' %}" class="btn btn-success mb-3">Créer un nouveau Point de Vente</a>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Code</th>
-                <th>Type</th>
-                <th>Latitude</th>
-                <th>Longitude</th>
-                <th>Commune</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for point in object_list %}
-            <tr>
-                <td>{{ point.code }}</td>
-                <td>{{ point.type }}</td>
-                <td>{{ point.gps_lat }}</td>
-                <td>{{ point.gps_lon }}</td>
-                <td>{{ point.commune.name }}</td>
-                <td>
-                    <a href="{% url 'pointofsale-update' point.pk %}" class="btn btn-primary btn-sm">Modifier</a>
-                    <a href="{% url 'pointofsale-delete' point.pk %}" class="btn btn-danger btn-sm">Supprimer</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="container py-4">
+    <div class="card shadow-sm rounded-custom">
+        <div class="card-header bg-white py-3">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h4 class="card-title mb-0 text-primary">
+                        <i class="fas fa-store me-2"></i>Liste des Points de Vente
+                    </h4>
+                </div>
+                <div class="col-auto">
+                    <a href="{% url 'pointofsale-create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Créer un Point de Vente
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            <!-- Import/Export Section -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-file-import me-2"></i>Importer
+                            </h5>
+                            <form method="post" enctype="multipart/form-data" action="{% url 'import_pointofsales' %}" class="needs-validation" novalidate>
+                                {% csrf_token %}
+                                <div class="input-group">
+                                    <input type="file" name="excel_file" class="form-control" required accept=".xlsx,.xls">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-upload me-1"></i>Importer
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-file-export me-2"></i>Exporter
+                            </h5>
+                            <a href="{% url 'export_pointofsales' %}" class="btn btn-success w-100">
+                                <i class="fas fa-download me-1"></i>Exporter en Excel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Code</th>
+                            <th>Type</th>
+                            <th>Commune</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                            <th class="text-end" style="width: 200px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pointofsale in object_list %}
+                        <tr>
+                            <td>{{ pointofsale.code }}</td>
+                            <td>{{ pointofsale.type }}</td>
+                            <td>{{ pointofsale.commune.name }}</td>
+                            <td>{{ pointofsale.gps_lat }}</td>
+                            <td>{{ pointofsale.gps_lon }}</td>
+                            <td>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{% url 'pointofsale-update' pointofsale.pk %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'pointofsale-delete' pointofsale.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Voulez-vous vraiment supprimer ce point de vente ?');">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="fas fa-store fa-2x mb-3 d-block"></i>
+                                Aucun point de vente trouvé
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Validation de l'importation du fichier Excel
+    document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const extension = file.name.split('.').pop().toLowerCase();
+            if (!['xlsx', 'xls'].includes(extension)) {
+                alert('Veuillez sélectionner un fichier Excel (.xlsx ou .xls)');
+                this.value = '';
+            }
+        }
+    });
+</script>
 {% endblock %}

@@ -103,21 +103,21 @@
                     <thead class="table-light">
                         <tr>
                             <th>Produit</th>
-                            <th>Date</th>
+                            <th>Date début</th>
+                            <th>Date fin</th>
                             <th>Prix</th>
-                            <th>Moughataa</th>
-                            <th>Note</th>
+                            <th>Point de vente</th>
                             <th class="text-end" style="width: 200px">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for price in object_list %}
+                        {% for price in productprices %}
                         <tr>
                             <td>{{ price.product.name }}</td>
-                            <td>{{ price.date|date:"d/m/Y" }}</td>
-                            <td>{{ price.price }} MRU</td>
-                            <td>{{ price.moughataa.name }}</td>
-                            <td>{{ price.note|default:'-' }}</td>
+                            <td>{{ price.date_from|date:"d/m/Y" }}</td>
+                            <td>{{ price.date_to|date:"d/m/Y" }}</td>
+                            <td>{{ price.value }} MRU</td>
+                            <td>{{ price.point_of_sale.name }}</td>
                             <td>
                                 <div class="d-flex justify-content-end gap-2">
                                     <a href="{% url 'productprice-update' price.pk %}" class="btn btn-sm btn-primary" title="Modifier">
@@ -147,25 +147,21 @@
                 <ul class="pagination justify-content-center">
                     {% if page_obj.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.product %}&product={{ request.GET.product }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" aria-label="Previous">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </a>
                     </li>
                     {% endif %}
-                    
+
                     {% for num in page_obj.paginator.page_range %}
-                    {% if page_obj.number == num %}
-                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.product %}&product={{ request.GET.product }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}">{{ num }}</a>
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
                     </li>
-                    {% endif %}
                     {% endfor %}
-                    
+
                     {% if page_obj.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.product %}&product={{ request.GET.product }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" aria-label="Next">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </a>
                     </li>
@@ -176,20 +172,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    // File input validation
-    document.querySelector('input[type="file"]').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const extension = file.name.split('.').pop().toLowerCase();
-            if (!['xlsx', 'xls'].includes(extension)) {
-                alert('Veuillez sélectionner un fichier Excel (.xlsx ou .xls)');
-                this.value = '';
-            }
-        }
-    });
-</script>
 {% endblock %}

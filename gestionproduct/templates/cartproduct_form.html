@@ -1,15 +1,145 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}Ajouter ou Modifier un Produit dans le Panier{% endblock %}
+{% block title %}{{ view.title }}{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="text-center">{{ view.title }}</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-success">Enregistrer</button>
-        <a href="{% url 'cartproduct-list' %}" class="btn btn-secondary">Annuler</a>
-    </form>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm rounded-custom">
+                <div class="card-header bg-white py-3">
+                    <h4 class="card-title mb-0 text-primary">
+                        <i class="fas fa-box me-2"></i>{{ view.title }}
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <!-- Produit Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.product.id_for_label }}" class="form-label">{{ form.product.label }}</label>
+                                <select name="{{ form.product.name }}" 
+                                        id="{{ form.product.id_for_label }}" 
+                                        class="form-select {% if form.product.errors %}is-invalid{% endif %}"
+                                        required>
+                                    <option value="">Sélectionner un produit</option>
+                                    {% for choice in form.product.field.choices %}
+                                    <option value="{{ choice.0 }}" {% if form.product.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                        {{ choice.1 }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.product.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.product.errors %}{{ error }}{% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Panier Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.cart.id_for_label }}" class="form-label">{{ form.cart.label }}</label>
+                                <select name="{{ form.cart.name }}" 
+                                        id="{{ form.cart.id_for_label }}" 
+                                        class="form-select {% if form.cart.errors %}is-invalid{% endif %}"
+                                        required>
+                                    <option value="">Sélectionner un panier</option>
+                                    {% for choice in form.cart.field.choices %}
+                                    <option value="{{ choice.0 }}" {% if form.cart.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                        {{ choice.1 }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.cart.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.cart.errors %}{{ error }}{% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Poids Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.weight.id_for_label }}" class="form-label">{{ form.weight.label }}</label>
+                                <input type="number" 
+                                       name="{{ form.weight.name }}"
+                                       id="{{ form.weight.id_for_label }}"
+                                       class="form-control {% if form.weight.errors %}is-invalid{% endif %}"
+                                       value="{{ form.weight.value|default_if_none:'' }}"
+                                       step="0.01"
+                                       required>
+                                {% if form.weight.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.weight.errors %}{{ error }}{% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Date début Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.date_from.id_for_label }}" class="form-label">{{ form.date_from.label }}</label>
+                                <input type="date" 
+                                       name="{{ form.date_from.name }}"
+                                       id="{{ form.date_from.id_for_label }}"
+                                       class="form-control {% if form.date_from.errors %}is-invalid{% endif %}"
+                                       value="{{ form.date_from.value|default_if_none:'' }}"
+                                       required>
+                                {% if form.date_from.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.date_from.errors %}{{ error }}{% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Date fin Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.date_to.id_for_label }}" class="form-label">{{ form.date_to.label }}</label>
+                                <input type="date" 
+                                       name="{{ form.date_to.name }}"
+                                       id="{{ form.date_to.id_for_label }}"
+                                       class="form-control {% if form.date_to.errors %}is-invalid{% endif %}"
+                                       value="{{ form.date_to.value|default_if_none:'' }}"
+                                       required>
+                                {% if form.date_to.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.date_to.errors %}{{ error }}{% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="{% url 'cartproduct-list' %}" class="btn btn-light">
+                                <i class="fas fa-times me-1"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>{% if form.instance.pk %}Mettre à jour{% else %}Ajouter{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form validation
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+</script>
 {% endblock %}

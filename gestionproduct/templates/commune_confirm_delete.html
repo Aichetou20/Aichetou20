@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block title %}Supprimer Commune{% endblock %}
 
@@ -9,7 +9,7 @@
             <div class="card shadow-sm rounded-custom">
                 <div class="card-header bg-white py-3">
                     <h4 class="card-title mb-0 text-danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmation de suppression
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmation de Suppression
                     </h4>
                 </div>
                 <div class="card-body p-4">
@@ -33,11 +33,11 @@
                             </div>
                             <div class="col-sm-6">
                                 <div class="fw-bold text-muted">Moughataa</div>
-                                <div>{{ object.moughataa.name }}</div>
+                                <div>{{ object.moughataa.label }}</div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="fw-bold text-muted">Wilaya</div>
-                                <div>{{ object.moughataa.wilaya.name }}</div>
+                                <div>{{ object.moughataa.wilaya.name|default:'-' }}</div>
                             </div>
                         </div>
                     </div>

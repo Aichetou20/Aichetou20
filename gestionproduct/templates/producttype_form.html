@@ -17,18 +17,34 @@
                         {% csrf_token %}
                         
                         <div class="row g-3">
-                            <!-- Name Field -->
+                            <!-- Code Field -->
                             <div class="col-md-12">
-                                <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+                                <label for="{{ form.code.id_for_label }}" class="form-label">{{ form.code.label }}</label>
                                 <input type="text" 
-                                       name="{{ form.name.name }}"
-                                       id="{{ form.name.id_for_label }}"
-                                       class="form-control {% if form.name.errors %}is-invalid{% endif %}"
-                                       value="{{ form.name.value|default:'' }}"
+                                       name="{{ form.code.name }}"
+                                       id="{{ form.code.id_for_label }}"
+                                       class="form-control {% if form.code.errors %}is-invalid{% endif %}"
+                                       value="{{ form.code.value|default:'' }}"
                                        required>
-                                {% if form.name.errors %}
+                                {% if form.code.errors %}
                                 <div class="invalid-feedback">
-                                    {% for error in form.name.errors %}{{ error }}{% endfor %}
+                                    {% for error in form.code.errors %}{{ error }}{% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Label Field -->
+                            <div class="col-md-12">
+                                <label for="{{ form.label.id_for_label }}" class="form-label">{{ form.label.label }}</label>
+                                <input type="text" 
+                                       name="{{ form.label.name }}"
+                                       id="{{ form.label.id_for_label }}"
+                                       class="form-control {% if form.label.errors %}is-invalid{% endif %}"
+                                       value="{{ form.label.value|default:'' }}"
+                                       required>
+                                {% if form.label.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.label.errors %}{{ error }}{% endfor %}
                                 </div>
                                 {% endif %}
                             </div>

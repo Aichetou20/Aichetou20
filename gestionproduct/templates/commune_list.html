@@ -82,8 +82,8 @@
                         <tr>
                             <td class="text-center">{{ commune.code }}</td>
                             <td>{{ commune.name }}</td>
-                            <td>{{ commune.moughataa.name }}</td>
-                            <td>{{ commune.moughataa.wilaya.name }}</td>
+                            <td>{{ commune.moughataa.label }}</td>
+                            <td>{{ commune.moughataa.wilaya.name|default:'-' }}</td>
                             <td>
                                 <div class="d-flex justify-content-end gap-2">
                                     <a href="{% url 'commune-update' commune.pk %}" class="btn btn-sm btn-primary" title="Modifier">
@@ -109,20 +109,4 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    // File input validation
-    document.querySelector('input[type="file"]').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const extension = file.name.split('.').pop().toLowerCase();
-            if (!['xlsx', 'xls'].includes(extension)) {
-                alert('Veuillez sélectionner un fichier Excel (.xlsx ou .xls)');
-                this.value = '';
-            }
-        }
-    });
-</script>
 {% endblock %}

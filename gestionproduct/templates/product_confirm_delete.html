@@ -16,14 +16,11 @@
                     <div class="text-center mb-4">
                         <i class="fas fa-box fa-3x text-muted mb-3"></i>
                         <h5>Êtes-vous sûr de vouloir supprimer ce produit ?</h5>
-                        <div class="alert alert-light mt-3">
+                        <div class="alert alert-light border mt-3">
                             <h6 class="mb-2">Détails du produit :</h6>
+                            <p class="mb-1"><strong>Code :</strong> {{ object.code }}</p>
                             <p class="mb-1"><strong>Nom :</strong> {{ object.name }}</p>
-                            <p class="mb-1"><strong>Type :</strong> {{ object.type.name }}</p>
-                            <p class="mb-1"><strong>Moughataa :</strong> {{ object.moughataa.name }}</p>
-                            {% if object.price %}
-                            <p class="mb-1"><strong>Prix actuel :</strong> {{ object.price }} MRU</p>
-                            {% endif %}
+                            <p class="mb-1"><strong>Type :</strong> {{ object.product_type.label }}</p>
                         </div>
                         <p class="text-danger mb-0">
                             <i class="fas fa-info-circle me-1"></i>Cette action est irréversible.
