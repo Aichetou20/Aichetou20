@@ -5,13 +5,15 @@ services:
       - .:/app
     ports:
       - "23029:8000"
-    depends_on:
-      db23029:
-        condition: service_healthy
     environment:
+      - DJANGO_DEBUG=True
+      - PYTHONUNBUFFERED=1
       - POSTGRES_DB=mydatabase
       - POSTGRES_USER=myuser
       - POSTGRES_PASSWORD=mypassword
+    depends_on:
+      db23029:
+        condition: service_healthy
 
   db23029:
     image: postgres:13

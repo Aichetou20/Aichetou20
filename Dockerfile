@@ -14,10 +14,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project files
 COPY . .
 
-# Create a non-root user and set up permissions
+# Create a non-root user and set up directories
 RUN useradd -m myuser && \
-    mkdir -p /app/staticfiles /app/media && \
-    chown -R myuser:myuser /app
+    mkdir -p /home/myuser/staticfiles /home/myuser/media && \
+    chown -R myuser:myuser /app /home/myuser/staticfiles /home/myuser/media
 
 USER myuser
 

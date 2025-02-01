@@ -100,11 +100,11 @@ USE_TZ = True
 
 # Fichiers statiques (collecte pour le déploiement)
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = '/home/myuser/staticfiles'
 
 # Configuration des fichiers médias
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = '/home/myuser/media'
 
 # Configuration de la session (ajustable selon besoin)
 SESSION_ENGINE = "django.contrib.sessions.backends.db"
