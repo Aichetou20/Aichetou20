@@ -4,7 +4,7 @@ services:
     volumes:
       - .:/app
     ports:
-      - "25029:8000"
+      - "23029:8000"
     depends_on:
       db23029:
         condition: service_healthy
