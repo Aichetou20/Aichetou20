@@ -1,26 +1,50 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}Confirmer la Suppression{% endblock %}
+{% block title %}Supprimer le Prix{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="text-center text-danger">Confirmer la Suppression</h1>
-    <p class="text-center">Êtes-vous sûr de vouloir supprimer le prix suivant ? Cette action est irréversible.</p>
-
-    <div class="card mb-3">
-        <div class="card-body">
-            <h5 class="card-title">Produit : {{ object.product.name }}</h5>
-            <p class="card-text">Point de Vente : {{ object.point_of_sale.code }}</p>
-            <p class="card-text">Valeur : {{ object.value }}</p>
-            <p class="card-text">Date de Début : {{ object.date_from }}</p>
-            <p class="card-text">Date de Fin : {{ object.date_to }}</p>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm rounded-custom">
+                <div class="card-header bg-white py-3">
+                    <h4 class="card-title mb-0 text-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmation de Suppression
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                        <h5>Êtes-vous sûr de vouloir supprimer cet historique de prix ?</h5>
+                        <div class="alert alert-light mt-3">
+                            <h6 class="mb-2">Détails du prix :</h6>
+                            <p class="mb-1"><strong>Produit :</strong> {{ object.product.name }}</p>
+                            <p class="mb-1"><strong>Prix :</strong> {{ object.price }} MRU</p>
+                            <p class="mb-1"><strong>Date :</strong> {{ object.date|date:"d/m/Y" }}</p>
+                            <p class="mb-1"><strong>Moughataa :</strong> {{ object.moughataa.name }}</p>
+                            {% if object.note %}
+                            <p class="mb-1"><strong>Note :</strong> {{ object.note }}</p>
+                            {% endif %}
+                        </div>
+                        <p class="text-danger mb-0">
+                            <i class="fas fa-info-circle me-1"></i>Cette action est irréversible.
+                        </p>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="{% url 'productprice-list' %}" class="btn btn-light">
+                                <i class="fas fa-times me-1"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-1"></i>Supprimer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
-
-    <form method="post" class="text-center">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Oui, Supprimer</button>
-        <a href="{% url 'productprice-list' %}" class="btn btn-secondary">Annuler</a>
-    </form>
 </div>
 {% endblock %}

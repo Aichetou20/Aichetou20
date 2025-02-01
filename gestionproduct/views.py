@@ -18,6 +18,7 @@ import pandas as pd
 # ========================
 from django.shortcuts import render
 from .models import INPC
+from django.utils import timezone
 
 # views.py
 import json
@@ -34,9 +35,61 @@ def home(request):
     }
     
     if request.user.is_authenticated:
-        # Add any user-specific data here
+        # Get basic statistics
+        total_products = Product.objects.count()
+        total_locations = PointOfSale.objects.count()
+        total_wilayas = Wilaya.objects.count()
+        
+        # Get INPC trend data (last 6 months)
+        inpc_data = list(INPC.objects.order_by('-year', '-month')[:6])
+        inpc_labels = []
+        inpc_values = []
+        
+        if inpc_data:
+            inpc_data.reverse()  # Show oldest to newest
+            inpc_labels = [f"{obj.year}-{obj.month}" for obj in inpc_data]
+            inpc_values = [float(obj.inpc_value) for obj in inpc_data]
+            
+            # Calculate INPC variation
+            if len(inpc_values) >= 2:
+                inpc_variation = ((inpc_values[-1] - inpc_values[-2]) / inpc_values[-2]) * 100
+            else:
+                inpc_variation = 0
+        else:
+            inpc_variation = 0
+        
+        # Get recent price changes (last 30 days)
+        thirty_days_ago = timezone.now() - timezone.timedelta(days=30)
+        recent_prices = list(
+            ProductPrice.objects.filter(date_from__gte=thirty_days_ago)
+            .values('product__name')
+            .annotate(
+                avg_price=Avg('value'),
+                price_count=Count('id')
+            )
+            .filter(price_count__gt=1)  # Only products with multiple price points
+            .order_by('-avg_price')[:5]
+        )
+        
+        # Get geographical coverage
+        geographical_coverage = list(
+            PointOfSale.objects.values('commune__moughataa__wilaya__name')
+            .annotate(point_count=Count('id'))
+            .order_by('-point_count')[:5]
+        )
+        
         context.update({
             'username': request.user.username,
+            'total_products': total_products,
+            'total_locations': total_locations,
+            'total_wilayas': total_wilayas,
+            'inpc_variation': round(inpc_variation, 2),
+            'inpc_data': {
+                'labels': inpc_labels,
+                'values': inpc_values,
+            },
+            'recent_prices': recent_prices,
+            'geographical_coverage': geographical_coverage,
         })
     
     return render(request, 'home.html', context)
@@ -704,151 +757,143 @@ def calculate_inpc(request, year, month):
 
 
 
-
-# views.py
-
-from django.shortcuts import render
-from .models import INPC, ProductType, Product, ProductPrice
-from django.db.models import Count, Avg
-import json
-
-def dashboard_view(request):
-    # Données pour le Line Chart : Évolution de l'INPC sur les derniers mois
-    last_12_inpc = INPC.objects.order_by('-year', '-month')[:12]
-    inpc_labels = [f"{item.month}/{item.year}" for item in last_12_inpc]
-    inpc_values = [item.inpc_value for item in last_12_inpc]
-
-    # Données pour le Pie Chart : Répartition des types de produits
-    product_types = ProductType.objects.annotate(total_products=Count('product'))
-    pie_labels = [pt.label for pt in product_types]
-    pie_data = [pt.total_products for pt in product_types]
-
-    # Données pour le Bar Chart : Nombre de produits par type
-    bar_labels = [pt.label for pt in product_types]
-    bar_data = [pt.total_products for pt in product_types]
-
-    # **Nouvelles Données pour l'Évolution des Prix**
-    # Calculer l'évolution moyenne des prix par mois
-    price_evolution = ProductPrice.objects.values('date_from__year', 'date_from__month') \
-        .annotate(avg_price=Avg('value')) \
-        .order_by('date_from__year', 'date_from__month')
-
-    price_labels = [f"{item['date_from__month']}/{item['date_from__year']}" for item in price_evolution]
-    price_values = [item['avg_price'] for item in price_evolution]
-
-    context = {
-        'inpc_labels': json.dumps(inpc_labels[::-1]),  # Inversion pour chronologie
-        'inpc_values': json.dumps(inpc_values[::-1]),
-        'pie_labels': json.dumps(pie_labels),
-        'pie_data': json.dumps(pie_data),
-        'bar_labels': json.dumps(bar_labels),
-        'bar_data': json.dumps(bar_data),
-        'price_labels': json.dumps(price_labels),
-        'price_values': json.dumps(price_values),
-    }
-
-    return render(request, 'dashboard.html', context)
-
-
-
-from django.db.models import Avg
-import json
-from django.shortcuts import render
-from .models import ProductPrice
-
-def dashboard_view(request):
-    # Récupérer les prix moyens par mois
-    price_evolution = ProductPrice.objects.values('date_from__year', 'date_from__month') \
-        .annotate(avg_price=Avg('value')) \
-        .order_by('date_from__year', 'date_from__month')
-
-    price_labels = [f"{item['date_from__month']}/{item['date_from__year']}" for item in price_evolution]
-    price_values = [item['avg_price'] for item in price_evolution]
-
-    context = {
-        'price_labels': json.dumps(price_labels),
-        'price_values': json.dumps(price_values),
-    }
-
-    return render(request, 'dashboard.html', context)
-
-
-
-from django.db.models import Count
-from .models import ProductType, Product
-
-def dashboard_view(request):
-    # Nombre de produits par type
-    product_types = ProductType.objects.annotate(total_products=Count('product'))
-
-    pie_labels = [pt.label for pt in product_types]
-    pie_data = [pt.total_products for pt in product_types]
-
-    context.update({
-        'pie_labels': json.dumps(pie_labels),
-        'pie_data': json.dumps(pie_data),
-    })
-
-    return render(request, 'dashboard.html', context)
-
-
-
-from django.shortcuts import render
-from django.db.models import Count, Avg
-import json
-from .models import ProductPrice, ProductType, PointOfSale, INPC
-
-def dashboard_view(request):
-    context = {}
-
-    # 1️⃣ Évolution de l'INPC (Déjà ajouté)
-    inpc_data = INPC.objects.order_by('year', 'month')
-    inpc_labels = [f"{entry.month}/{entry.year}" for entry in inpc_data]
-    inpc_values = [entry.inpc_value for entry in inpc_data]
-
-    # 2️⃣ Évolution Moyenne des Prix des Produits par Mois
-    price_evolution = ProductPrice.objects.values('date_from__year', 'date_from__month') \
-        .annotate(avg_price=Avg('value')) \
-        .order_by('date_from__year', 'date_from__month')
-
-    price_labels = [f"{item['date_from__month']}/{item['date_from__year']}" for item in price_evolution]
-    price_values = [item['avg_price'] for item in price_evolution]
-
-    # 3️⃣ Répartition des Types de Produits (Pie Chart)
-    product_types = ProductType.objects.annotate(total_products=Count('product'))
-    pie_labels = [pt.label for pt in product_types]
-    pie_data = [pt.total_products for pt in product_types]
-
-    # 4️⃣ Nombre de Produits par Type (Bar Chart)
-    bar_labels = pie_labels  # Même que Pie Chart
-    bar_data = pie_data      # Même que Pie Chart
-
-    # 5️⃣ Nombre de Produits par Point de Vente (Bar Chart - Déjà ajouté)
-    points_of_sale = PointOfSale.objects.annotate(total_products=Count('productprice'))
-    pos_labels = [pos.code for pos in points_of_sale]
-    pos_data = [pos.total_products for pos in points_of_sale]
-
-    # Ajouter les données au contexte
-    context.update({
-        'inpc_labels': json.dumps(inpc_labels),
-        'inpc_values': json.dumps(inpc_values),
-        'price_labels': json.dumps(price_labels),
-        'price_values': json.dumps(price_values),
-        'pie_labels': json.dumps(pie_labels),
-        'pie_data': json.dumps(pie_data),
-        'bar_labels': json.dumps(bar_labels),
-        'bar_data': json.dumps(bar_data),
-        'pos_labels': json.dumps(pos_labels),
-        'pos_data': json.dumps(pos_data),
-    })
-
-    return render(request, 'dashboard.html', context)
-
-
-
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.db.models import Count
 
 @login_required
 def dashboard(request):
-    return render(request, 'gestionproduct/dashboard.html')
+    # Get basic statistics
+    total_products = Product.objects.count()
+    active_carts = Cart.objects.count()
+    total_wilayas = Wilaya.objects.count()
+    
+    # Get INPC data for the last 4 months
+    recent_inpc = list(INPC.objects.order_by('-year', '-month')[:4])
+    
+    # Get INPC data for the chart (last 12 months)
+    inpc_data = list(INPC.objects.order_by('-year', '-month')[:12])
+    inpc_labels = []
+    inpc_values = []
+    inpc_variation = 0
+    
+    if inpc_data:
+        inpc_data.reverse()  # Show oldest to newest
+        inpc_labels = [f"{obj.year}-{obj.month}" for obj in inpc_data]
+        inpc_values = [float(obj.inpc_value) for obj in inpc_data]
+        
+        # Calculate INPC variation from the most recent data
+        if len(inpc_values) >= 2:
+            inpc_variation = ((inpc_values[-1] - inpc_values[-2]) / inpc_values[-2]) * 100
+    
+    # Handle INPC calculation form
+    calculation_result = None
+    calculation_error = None
+    
+    if request.method == 'POST' and 'calculate_inpc' in request.POST:
+        try:
+            year = int(request.POST.get('year'))
+            month = int(request.POST.get('month'))
+            
+            # Get all product prices for the given month
+            prices = ProductPrice.objects.filter(
+                date_from__year=year,
+                date_from__month=month
+            ).select_related('product')
+            
+            if prices.exists():
+                # Group prices by product and calculate average
+                product_prices = {}
+                for price in prices:
+                    if price.product_id not in product_prices:
+                        product_prices[price.product_id] = {
+                            'sum': price.value,
+                            'count': 1,
+                            'name': price.product.name
+                        }
+                    else:
+                        product_prices[price.product_id]['sum'] += price.value
+                        product_prices[price.product_id]['count'] += 1
+                
+                # Calculate weighted average for INPC
+                total_weight = 0
+                weighted_sum = 0
+                
+                for product_id, data in product_prices.items():
+                    avg_price = data['sum'] / data['count']
+                    product = Product.objects.get(id=product_id)
+                    weight = product.weight or 1  # Default weight of 1 if not specified
+                    
+                    weighted_sum += avg_price * weight
+                    total_weight += weight
+                
+                if total_weight > 0:
+                    inpc_value = weighted_sum / total_weight
+                    
+                    # Save the calculated INPC
+                    INPC.objects.update_or_create(
+                        year=year,
+                        month=month,
+                        defaults={'inpc_value': inpc_value}
+                    )
+                    
+                    calculation_result = {
+                        'year': year,
+                        'month': month,
+                        'value': round(inpc_value, 2),
+                        'products': len(product_prices)
+                    }
+                else:
+                    calculation_error = "Erreur: Poids total nul"
+            else:
+                calculation_error = "Aucun prix trouvé pour cette période"
+        except ValueError:
+            calculation_error = "Veuillez entrer une année et un mois valides"
+        except Exception as e:
+            calculation_error = f"Erreur lors du calcul: {str(e)}"
+    
+    # Get product distribution by type
+    product_distribution = list(
+        ProductType.objects.annotate(product_count=Count('product'))
+        .values('label', 'product_count')
+    )
+    
+    # Get price trends
+    price_trends = list(
+        ProductPrice.objects.values('product__name')
+        .annotate(avg_price=Avg('value'))
+        .order_by('-avg_price')[:5]
+    )
+    
+    # Get geographical distribution
+    geographical_data = list(
+        PointOfSale.objects.values('commune__moughataa__wilaya__name')
+        .annotate(point_count=Count('id'))
+        .order_by('-point_count')
+    )
+    
+    # Get years for the form
+    current_year = timezone.now().year
+    years = range(current_year - 5, current_year + 1)
+    months = range(1, 13)
+    
+    context = {
+        'total_products': total_products,
+        'active_carts': active_carts,
+        'total_wilayas': total_wilayas,
+        'inpc_variation': round(inpc_variation, 2),
+        'inpc_data': {
+            'labels': inpc_labels,
+            'values': inpc_values,
+        },
+        'product_distribution': product_distribution,
+        'price_trends': price_trends,
+        'geographical_data': geographical_data,
+        'years': years,
+        'months': months,
+        'calculation_result': calculation_result,
+        'calculation_error': calculation_error,
+        'recent_inpc': recent_inpc
+    }
+    
+    return render(request, 'dashboard.html', context)

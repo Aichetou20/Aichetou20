@@ -1,13 +1,49 @@
 {% extends "base.html" %}
 
+{% block title %}Supprimer le Produit{% endblock %}
+
 {% block content %}
-<h1>Supprimer le produit</h1>
-
-<p>Êtes-vous sûr de vouloir supprimer le produit <strong>{{ object.name }}</strong> ?</p>
-
-<form method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Supprimer</button>
-    <a href="{% url 'product-list' %}" class="btn btn-secondary">Annuler</a>
-</form>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm rounded-custom">
+                <div class="card-header bg-white py-3">
+                    <h4 class="card-title mb-0 text-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmation de Suppression
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-box fa-3x text-muted mb-3"></i>
+                        <h5>Êtes-vous sûr de vouloir supprimer ce produit ?</h5>
+                        <div class="alert alert-light mt-3">
+                            <h6 class="mb-2">Détails du produit :</h6>
+                            <p class="mb-1"><strong>Nom :</strong> {{ object.name }}</p>
+                            <p class="mb-1"><strong>Type :</strong> {{ object.type.name }}</p>
+                            <p class="mb-1"><strong>Moughataa :</strong> {{ object.moughataa.name }}</p>
+                            {% if object.price %}
+                            <p class="mb-1"><strong>Prix actuel :</strong> {{ object.price }} MRU</p>
+                            {% endif %}
+                        </div>
+                        <p class="text-danger mb-0">
+                            <i class="fas fa-info-circle me-1"></i>Cette action est irréversible.
+                        </p>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="{% url 'product-list' %}" class="btn btn-light">
+                                <i class="fas fa-times me-1"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash me-1"></i>Supprimer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

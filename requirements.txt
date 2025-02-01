@@ -4,3 +4,4 @@ pandas
 openpyxl
 gunicorn==21.2.0
 whitenoise==6.5.0  # For serving static files
+Faker==35.2.0

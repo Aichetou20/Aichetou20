@@ -1,41 +1,149 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
-{% block title %}
-    {% if object %}Modifier le Prix du Produit{% else %}Créer un Nouveau Prix de Produit{% endif %}
-{% endblock %}
+{% block title %}{{ view.title }}{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="text-center">
-        {% if object %}Modifier le Prix{% else %}Ajouter un Nouveau Prix{% endif %}
-    </h1>
-    <form method="post">
-        {% csrf_token %}
-        <div class="mb-3">
-            <label for="id_value" class="form-label">Valeur</label>
-            {{ form.value }}
-        </div>
-        <div class="mb-3">
-            <label for="id_date_from" class="form-label">Date de Début</label>
-            {{ form.date_from }}
-        </div>
-        <div class="mb-3">
-            <label for="id_date_to" class="form-label">Date de Fin</label>
-            {{ form.date_to }}
-        </div>
-        <div class="mb-3">
-            <label for="id_product" class="form-label">Produit</label>
-            {{ form.product }}
-        </div>
-        <div class="mb-3">
-            <label for="id_point_of_sale" class="form-label">Point de Vente</label>
-            {{ form.point_of_sale }}
-        </div>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm rounded-custom">
+                <div class="card-header bg-white py-3">
+                    <h4 class="card-title mb-0 text-primary">
+                        <i class="fas fa-history me-2"></i>{{ view.title }}
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <!-- Product Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.product.id_for_label }}" class="form-label">{{ form.product.label }}</label>
+                                <select name="{{ form.product.name }}"
+                                        id="{{ form.product.id_for_label }}"
+                                        class="form-select {% if form.product.errors %}is-invalid{% endif %}"
+                                        required>
+                                    <option value="">Sélectionner un produit</option>
+                                    {% for choice in form.product.field.choices %}
+                                    <option value="{{ choice.0 }}" {% if form.product.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                        {{ choice.1 }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.product.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.product.errors %}{{ error }}{% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
 
-        <button type="submit" class="btn btn-primary">
-            {% if object %}Mettre à jour{% else %}Créer{% endif %}
-        </button>
-        <a href="{% url 'productprice-list' %}" class="btn btn-secondary">Annuler</a>
-    </form>
+                            <!-- Price Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.value.id_for_label }}" class="form-label">{{ form.value.label }}</label>
+                                <div class="input-group">
+                                    <input type="number" 
+                                           name="{{ form.value.name }}"
+                                           id="{{ form.value.id_for_label }}"
+                                           class="form-control {% if form.value.errors %}is-invalid{% endif %}"
+                                           value="{{ form.value.value|default:'' }}"
+                                           step="0.01"
+                                           required>
+                                    <span class="input-group-text">MRU</span>
+                                    {% if form.value.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.value.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Date From Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.date_from.id_for_label }}" class="form-label">{{ form.date_from.label }}</label>
+                                <input type="date" 
+                                       name="{{ form.date_from.name }}"
+                                       id="{{ form.date_from.id_for_label }}"
+                                       class="form-control {% if form.date_from.errors %}is-invalid{% endif %}"
+                                       value="{{ form.date_from.value|date:'Y-m-d'|default:'' }}"
+                                       required>
+                                {% if form.date_from.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.date_from.errors %}{{ error }}{% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Date To Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.date_to.id_for_label }}" class="form-label">{{ form.date_to.label }}</label>
+                                <input type="date" 
+                                       name="{{ form.date_to.name }}"
+                                       id="{{ form.date_to.id_for_label }}"
+                                       class="form-control {% if form.date_to.errors %}is-invalid{% endif %}"
+                                       value="{{ form.date_to.value|date:'Y-m-d'|default:'' }}"
+                                       required>
+                                {% if form.date_to.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.date_to.errors %}{{ error }}{% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Point of Sale Field -->
+                            <div class="col-md-6">
+                                <label for="{{ form.point_of_sale.id_for_label }}" class="form-label">{{ form.point_of_sale.label }}</label>
+                                <select name="{{ form.point_of_sale.name }}"
+                                        id="{{ form.point_of_sale.id_for_label }}"
+                                        class="form-select {% if form.point_of_sale.errors %}is-invalid{% endif %}"
+                                        required>
+                                    <option value="">Sélectionner un point de vente</option>
+                                    {% for choice in form.point_of_sale.field.choices %}
+                                    <option value="{{ choice.0 }}" {% if form.point_of_sale.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>
+                                        {{ choice.1 }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.point_of_sale.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.point_of_sale.errors %}{{ error }}{% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="{% url 'productprice-list' %}" class="btn btn-light">
+                                <i class="fas fa-times me-1"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>{% if form.instance.pk %}Mettre à jour{% else %}Enregistrer{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Form validation
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+</script>
 {% endblock %}

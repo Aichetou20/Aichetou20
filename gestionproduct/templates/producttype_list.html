@@ -1,55 +1,124 @@
 {% extends "base.html" %}
 
+{% block title %}Types de Produits{% endblock %}
+
 {% block content %}
-<h1>Liste des Types de Produits</h1>
+<div class="container py-4">
+    <div class="card shadow-sm rounded-custom">
+        <div class="card-header bg-white py-3">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h4 class="card-title mb-0 text-primary">
+                        <i class="fas fa-tags me-2"></i>Types de Produits
+                    </h4>
+                </div>
+                <div class="col-auto">
+                    <a href="{% url 'producttype-create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Nouveau Type
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-body p-4">
+            <!-- Import/Export Section -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-file-import me-2"></i>Importer
+                            </h5>
+                            <form method="post" enctype="multipart/form-data" action="{% url 'import_producttypes' %}" class="needs-validation" novalidate>
+                                {% csrf_token %}
+                                <div class="input-group">
+                                    <input type="file" name="excel_file" class="form-control" required accept=".xlsx,.xls">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-upload me-1"></i>Importer
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-file-export me-2"></i>Exporter
+                            </h5>
+                            <a href="{% url 'export_producttypes' %}" class="btn btn-success w-100">
+                                <i class="fas fa-download me-1"></i>Exporter en Excel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-<!-- Boutons d'action -->
-<div class="mb-3">
-    <a href="{% url 'producttype-create' %}" class="btn btn-success">Créer un Type de Produit</a>
-    <a href="{% url 'export_producttypes' %}" class="btn btn-info">Exporter en Excel</a>
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nom</th>
+                            <th>Description</th>
+                            <th class="text-end" style="width: 200px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producttype in object_list %}
+                        <tr>
+                            <td>{{ producttype.name }}</td>
+                            <td>{{ producttype.description|default:'-' }}</td>
+                            <td>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{% url 'producttype-update' producttype.pk %}" class="btn btn-sm btn-primary" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'producttype-delete' producttype.pk %}" class="btn btn-sm btn-danger" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center py-4 text-muted">
+                                <i class="fas fa-tags fa-2x mb-3 d-block"></i>
+                                Aucun type de produit trouvé
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
+{% endblock %}
 
-<!-- Formulaire pour l'importation de fichier Excel -->
-<form method="post" enctype="multipart/form-data" action="{% url 'import_producttypes' %}" class="mb-4">
-    {% csrf_token %}
-    <div class="input-group">
-        <input type="file" name="excel_file" class="form-control" required>
-        <button type="submit" class="btn btn-primary">Importer</button>
-    </div>
-</form>
-
-<!-- Affichage des messages de succès ou d'erreur -->
-{% if messages %}
-    <div class="alert alert-info">
-        {% for message in messages %}
-            {{ message }}
-        {% endfor %}
-    </div>
-{% endif %}
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Code</th>
-            <th>Label</th>
-            <th>Description</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for producttype in object_list %}
-        <tr>
-            <td>{{ producttype.id }}</td>
-            <td>{{ producttype.code }}</td>
-            <td>{{ producttype.label }}</td>
-            <td>{{ producttype.description }}</td>
-            <td>
-                <a href="{% url 'producttype-update' producttype.pk %}" class="btn btn-primary btn-sm">Modifier</a>
-                <a href="{% url 'producttype-delete' producttype.pk %}" class="btn btn-danger btn-sm">Supprimer</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% block extra_js %}
+<script>
+    // File input validation
+    document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const extension = file.name.split('.').pop().toLowerCase();
+            if (!['xlsx', 'xls'].includes(extension)) {
+                alert('Veuillez sélectionner un fichier Excel (.xlsx ou .xls)');
+                this.value = '';
+            }
+        }
+    });
+</script>
 {% endblock %}

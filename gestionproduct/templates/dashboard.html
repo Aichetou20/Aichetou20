@@ -1,137 +1,409 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard</title>
-    <!-- Inclure Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
-        h1 {
-            margin-top: 20px;
-        }
-        .charts-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .chart-box {
-            width: 45%;
-            margin: 2%;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background: #f9f9f9;
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        canvas {
-            width: 100% !important;
-            height: auto !important;
-        }
-    </style>
-</head>
-<body>
-    <h1>📊 Tableau de Bord</h1>
-    <p>Analyse des données sur les produits, les prix et les points de vente.</p>
+{% extends 'base.html' %}
+{% load inpc_tags %}
 
-    <div class="charts-container">
-        <!-- 1️⃣ Évolution de l'INPC -->
-        <div class="chart-box">
-            <h2>📈 Évolution de l'INPC</h2>
-            <canvas id="inpcChart"></canvas>
+{% block title %}Tableau de bord - INPC{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="container-fluid">
+        <!-- Recent INPC Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="dashboard-card">
+                    <div class="dashboard-card-header">
+                        <h5 class="card-title mb-0">INPC des 4 derniers mois</h5>
+                    </div>
+                    <div class="dashboard-card-body">
+                        {% if recent_inpc %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Période</th>
+                                            <th>Valeur INPC</th>
+                                            <th>Variation</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for inpc in recent_inpc %}
+                                        <tr>
+                                            <td>{{ inpc.month }}/{{ inpc.year }}</td>
+                                            <td>{{ inpc.inpc_value|floatformat:2 }}</td>
+                                            <td>
+                                                {% if not forloop.first %}
+                                                    {% with prev_idx=forloop.counter0|add:"-1" %}
+                                                    {% with prev=recent_inpc|get_item:prev_idx %}
+                                                    {% if prev and prev.inpc_value %}
+                                                        {% with variation=inpc.inpc_value|subtract:prev.inpc_value|divide:prev.inpc_value|multiply:100 %}
+                                                        <span class="{% if variation > 0 %}text-danger{% else %}text-success{% endif %}">
+                                                            {{ variation|floatformat:2 }}%
+                                                            {% if variation > 0 %}↑{% else %}↓{% endif %}
+                                                        </span>
+                                                        {% endwith %}
+                                                    {% else %}
+                                                        -
+                                                    {% endif %}
+                                                    {% endwith %}
+                                                    {% endwith %}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-calculator empty-icon"></i>
+                                <h6 class="empty-title">Aucune donnée INPC récente</h6>
+                                <p class="empty-text">Les données INPC apparaîtront ici une fois calculées</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- 2️⃣ Évolution Moyenne des Prix -->
-        <div class="chart-box">
-            <h2>📉 Évolution des Prix Moyens</h2>
-            <canvas id="priceChart"></canvas>
+        <!-- INPC Calculator Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="dashboard-card">
+                    <div class="dashboard-card-header">
+                        <h5 class="card-title mb-0">Calculateur INPC</h5>
+                    </div>
+                    <div class="dashboard-card-body">
+                        <form method="post" class="row g-3">
+                            {% csrf_token %}
+                            <div class="col-md-4">
+                                <label for="year" class="form-label">Année</label>
+                                <select name="year" id="year" class="form-select" required>
+                                    {% for year in years %}
+                                        <option value="{{ year }}">{{ year }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="month" class="form-label">Mois</label>
+                                <select name="month" id="month" class="form-select" required>
+                                    {% for month in months %}
+                                        <option value="{{ month }}">{{ month }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <button type="submit" name="calculate_inpc" class="btn btn-primary w-100">
+                                    <i class="fas fa-calculator me-2"></i>Calculer l'INPC
+                                </button>
+                            </div>
+                        </form>
+
+                        {% if calculation_result %}
+                            <div class="alert alert-success mt-4">
+                                <h6 class="alert-heading">Résultat du calcul</h6>
+                                <p class="mb-0">
+                                    L'INPC pour {{ calculation_result.month }}/{{ calculation_result.year }} 
+                                    est de <strong>{{ calculation_result.value }}</strong>
+                                    (basé sur {{ calculation_result.products }} produits)
+                                </p>
+                            </div>
+                        {% endif %}
+
+                        {% if calculation_error %}
+                            <div class="alert alert-danger mt-4">
+                                <h6 class="alert-heading">Erreur de calcul</h6>
+                                <p class="mb-0">{{ calculation_error }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- 3️⃣ Répartition des Types de Produits -->
-        <div class="chart-box">
-            <h2>🥧 Répartition des Types de Produits</h2>
-            <canvas id="pieChart"></canvas>
+        <!-- Statistics Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+                <div class="stat-card">
+                    <div class="stat-card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="stat-label">Total Produits</div>
+                            <div class="stat-icon bg-primary-soft">
+                                <i class="fas fa-box"></i>
+                            </div>
+                        </div>
+                        <h3 class="stat-value mb-0">{{ total_products }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+                <div class="stat-card">
+                    <div class="stat-card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="stat-label">Paniers Actifs</div>
+                            <div class="stat-icon bg-warning-soft">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                        </div>
+                        <h3 class="stat-value mb-0">{{ active_carts }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+                <div class="stat-card">
+                    <div class="stat-card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="stat-label">Wilayas Couvertes</div>
+                            <div class="stat-icon bg-success-soft">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                        </div>
+                        <h3 class="stat-value mb-0">{{ total_wilayas }}</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3" data-aos="fade-up" data-aos-delay="400">
+                <div class="stat-card">
+                    <div class="stat-card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="stat-label">Variation INPC</div>
+                            <div class="stat-icon bg-info-soft">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                        </div>
+                        <h3 class="stat-value mb-0">{{ inpc_variation }}%</h3>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- 4️⃣ Nombre de Produits par Type -->
-        <div class="chart-box">
-            <h2>📊 Produits par Type</h2>
-            <canvas id="barChart"></canvas>
+        <!-- Charts Section -->
+        <div class="row g-4">
+            <!-- INPC Evolution -->
+            <div class="col-md-8" data-aos="fade-up" data-aos-delay="100">
+                <div class="dashboard-card h-100">
+                    <div class="dashboard-card-header">
+                        <h5 class="card-title mb-0">Évolution de l'INPC</h5>
+                    </div>
+                    <div class="dashboard-card-body">
+                        {% if inpc_data.labels %}
+                            <div class="chart-container" style="height: 300px;">
+                                <canvas id="inpcChart"></canvas>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-chart-line empty-icon"></i>
+                                <h6 class="empty-title">Aucune donnée disponible</h6>
+                                <p class="empty-text">Les données d'évolution apparaîtront ici une fois disponibles</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Distribution -->
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="dashboard-card h-100">
+                    <div class="dashboard-card-header">
+                        <h5 class="card-title mb-0">Distribution des Produits</h5>
+                    </div>
+                    <div class="dashboard-card-body">
+                        {% if product_distribution %}
+                            <div class="chart-container" style="height: 300px;">
+                                <canvas id="productDistChart"></canvas>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-chart-pie empty-icon"></i>
+                                <h6 class="empty-title">Aucune donnée disponible</h6>
+                                <p class="empty-text">Les données de distribution apparaîtront ici une fois disponibles</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- 5️⃣ Nombre de Produits par Point de Vente -->
-        <div class="chart-box">
-            <h2>🏪 Produits par Point de Vente</h2>
-            <canvas id="posChart"></canvas>
+        <!-- Additional Data Section -->
+        <div class="row g-4 mt-4">
+            <!-- Price Trends -->
+            <div class="col-md-6" data-aos="fade-up">
+                <div class="dashboard-card h-100">
+                    <div class="dashboard-card-header">
+                        <h5 class="card-title mb-0">Tendances des Prix</h5>
+                    </div>
+                    <div class="dashboard-card-body">
+                        {% if price_trends %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Produit</th>
+                                            <th>Prix Moyen</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for trend in price_trends %}
+                                        <tr>
+                                            <td>{{ trend.product__name }}</td>
+                                            <td>{{ trend.avg_price|floatformat:2 }} MRU</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-money-bill-wave empty-icon"></i>
+                                <h6 class="empty-title">Aucune donnée disponible</h6>
+                                <p class="empty-text">Les tendances des prix apparaîtront ici une fois disponibles</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Geographical Distribution -->
+            <div class="col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="dashboard-card h-100">
+                    <div class="dashboard-card-header">
+                        <h5 class="card-title mb-0">Distribution Géographique</h5>
+                    </div>
+                    <div class="dashboard-card-body">
+                        {% if geographical_data %}
+                            <div class="chart-container" style="height: 300px;">
+                                <canvas id="geoDistChart"></canvas>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="fas fa-map-marker-alt empty-icon"></i>
+                                <h6 class="empty-title">Aucune donnée disponible</h6>
+                                <p class="empty-text">La distribution géographique apparaîtra ici une fois disponible</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+</div>
+{% endblock %}
 
-    <script>
-        function safeJsonParse(jsonData) {
-            try {
-                return JSON.parse(jsonData);
-            } catch (error) {
-                console.error("Erreur de parsing JSON:", error);
-                return [];
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // INPC Evolution Chart
+    {% if inpc_data.labels %}
+    new Chart(document.getElementById('inpcChart'), {
+        type: 'line',
+        data: {
+            labels: {{ inpc_data.labels|safe }},
+            datasets: [{
+                label: 'INPC',
+                data: {{ inpc_data.values|safe }},
+                borderColor: '#4F46E5',
+                backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    grid: {
+                        drawBorder: false
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
             }
         }
+    });
+    {% endif %}
 
-        const inpcLabels = safeJsonParse('{{ inpc_labels|safe }}');
-        const inpcValues = safeJsonParse('{{ inpc_values|safe }}');
-
-        const priceLabels = safeJsonParse('{{ price_labels|safe }}');
-        const priceValues = safeJsonParse('{{ price_values|safe }}');
-
-        const pieLabels = safeJsonParse('{{ pie_labels|safe }}');
-        const pieData = safeJsonParse('{{ pie_data|safe }}');
-
-        const barLabels = safeJsonParse('{{ bar_labels|safe }}');
-        const barData = safeJsonParse('{{ bar_data|safe }}');
-
-        const posLabels = safeJsonParse('{{ pos_labels|safe }}');
-        const posData = safeJsonParse('{{ pos_data|safe }}');
-
-        new Chart(document.getElementById('inpcChart'), {
-            type: 'line',
-            data: {
-                labels: inpcLabels,
-                datasets: [{ label: 'INPC', data: inpcValues, borderColor: 'blue', fill: true }]
+    // Product Distribution Chart
+    {% if product_distribution %}
+    new Chart(document.getElementById('productDistChart'), {
+        type: 'doughnut',
+        data: {
+            labels: [{% for item in product_distribution %}"{{ item.label }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                data: [{% for item in product_distribution %}{{ item.product_count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: [
+                    '#4F46E5',
+                    '#10B981',
+                    '#F59E0B',
+                    '#EF4444',
+                    '#8B5CF6',
+                    '#EC4899'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
             }
-        });
+        }
+    });
+    {% endif %}
 
-        new Chart(document.getElementById('priceChart'), {
-            type: 'line',
-            data: {
-                labels: priceLabels,
-                datasets: [{ label: 'Prix Moyen', data: priceValues, borderColor: 'red', fill: true }]
+    // Geographical Distribution Chart
+    {% if geographical_data %}
+    new Chart(document.getElementById('geoDistChart'), {
+        type: 'bar',
+        data: {
+            labels: [{% for item in geographical_data %}"{{ item.commune__moughataa__wilaya__name }}"{% if not forloop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                label: 'Points de vente',
+                data: [{% for item in geographical_data %}{{ item.point_count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: '#4F46E5',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        drawBorder: false
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
             }
-        });
-
-        new Chart(document.getElementById('pieChart'), {
-            type: 'pie',
-            data: {
-                labels: pieLabels,
-                datasets: [{ data: pieData, backgroundColor: ['red', 'blue', 'green', 'yellow', 'purple'] }]
-            }
-        });
-
-        new Chart(document.getElementById('barChart'), {
-            type: 'bar',
-            data: {
-                labels: barLabels,
-                datasets: [{ label: 'Produits par Type', data: barData, backgroundColor: 'orange' }]
-            }
-        });
-
-        new Chart(document.getElementById('posChart'), {
-            type: 'bar',
-            data: {
-                labels: posLabels,
-                datasets: [{ label: 'Produits par Point de Vente', data: posData, backgroundColor: 'green' }]
-            }
-        });
-    </script>
-</body>
-</html>
+        }
+    });
+    {% endif %}
+});
+</script>
+{% endblock %}

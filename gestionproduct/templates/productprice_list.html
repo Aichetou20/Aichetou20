@@ -1,57 +1,195 @@
 {% extends "base.html" %}
 
+{% block title %}Historique des Prix{% endblock %}
+
 {% block content %}
-<h1>Liste des Prix des Produits</h1>
+<div class="container py-4">
+    <div class="card shadow-sm rounded-custom">
+        <div class="card-header bg-white py-3">
+            <div class="row align-items-center">
+                <div class="col">
+                    <h4 class="card-title mb-0 text-primary">
+                        <i class="fas fa-history me-2"></i>Historique des Prix
+                    </h4>
+                </div>
+                <div class="col-auto">
+                    <a href="{% url 'productprice-create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Nouveau Prix
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-body p-4">
+            <!-- Import/Export Section -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-file-import me-2"></i>Importer
+                            </h5>
+                            <form method="post" enctype="multipart/form-data" action="{% url 'import_productprices' %}" class="needs-validation" novalidate>
+                                {% csrf_token %}
+                                <div class="input-group">
+                                    <input type="file" name="excel_file" class="form-control" required accept=".xlsx,.xls">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-upload me-1"></i>Importer
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">
+                                <i class="fas fa-file-export me-2"></i>Exporter
+                            </h5>
+                            <a href="{% url 'export_productprices' %}" class="btn btn-success w-100">
+                                <i class="fas fa-download me-1"></i>Exporter en Excel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-<!-- Boutons d'action -->
-<div class="mb-3">
-    <a href="{% url 'productprice-create' %}" class="btn btn-success">Ajouter un Prix</a>
-    <a href="{% url 'export_productprices' %}" class="btn btn-info">Exporter en Excel</a>
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Search Form -->
+            <form method="get" class="mb-4">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" name="search" class="form-control" placeholder="Rechercher..." value="{{ request.GET.search }}">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="product" class="form-select">
+                            <option value="">Tous les produits</option>
+                            {% for product in products %}
+                            <option value="{{ product.id }}" {% if request.GET.product == product.id|stringformat:"s" %}selected{% endif %}>
+                                {{ product.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" name="date" class="form-control" value="{{ request.GET.date }}">
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-1"></i>Filtrer
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Produit</th>
+                            <th>Date</th>
+                            <th>Prix</th>
+                            <th>Moughataa</th>
+                            <th>Note</th>
+                            <th class="text-end" style="width: 200px">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for price in object_list %}
+                        <tr>
+                            <td>{{ price.product.name }}</td>
+                            <td>{{ price.date|date:"d/m/Y" }}</td>
+                            <td>{{ price.price }} MRU</td>
+                            <td>{{ price.moughataa.name }}</td>
+                            <td>{{ price.note|default:'-' }}</td>
+                            <td>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="{% url 'productprice-update' price.pk %}" class="btn btn-sm btn-primary" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'productprice-delete' price.pk %}" class="btn btn-sm btn-danger" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="fas fa-history fa-2x mb-3 d-block"></i>
+                                Aucun historique de prix trouvé
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.product %}&product={{ request.GET.product }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.product %}&product={{ request.GET.product }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.product %}&product={{ request.GET.product }}{% endif %}{% if request.GET.date %}&date={{ request.GET.date }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
 </div>
+{% endblock %}
 
-<!-- Formulaire pour l'importation de fichier Excel -->
-<form method="post" enctype="multipart/form-data" action="{% url 'import_productprices' %}" class="mb-4">
-    {% csrf_token %}
-    <div class="input-group">
-        <input type="file" name="excel_file" class="form-control" required>
-        <button type="submit" class="btn btn-primary">Importer</button>
-    </div>
-</form>
-
-<!-- Affichage des messages de succès ou d'erreur -->
-{% if messages %}
-    <div class="alert alert-info">
-        {% for message in messages %}
-            {{ message }}
-        {% endfor %}
-    </div>
-{% endif %}
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Produit</th>
-            <th>Prix</th>
-            <th>Date Début</th>
-            <th>Date Fin</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for productprice in object_list %}
-        <tr>
-            <td>{{ productprice.id }}</td>
-            <td>{{ productprice.product.code }} - {{ productprice.product.name }}</td>
-            <td>{{ productprice.value }}</td>
-            <td>{{ productprice.date_from|date:"d/m/Y" }}</td>
-            <td>{{ productprice.date_to|date:"d/m/Y" }}</td>
-            <td>
-                <a href="{% url 'productprice-update' productprice.pk %}" class="btn btn-primary btn-sm">Modifier</a>
-                <a href="{% url 'productprice-delete' productprice.pk %}" class="btn btn-danger btn-sm">Supprimer</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+{% block extra_js %}
+<script>
+    // File input validation
+    document.querySelector('input[type="file"]').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const extension = file.name.split('.').pop().toLowerCase();
+            if (!['xlsx', 'xls'].includes(extension)) {
+                alert('Veuillez sélectionner un fichier Excel (.xlsx ou .xls)');
+                this.value = '';
+            }
+        }
+    });
+</script>
 {% endblock %}

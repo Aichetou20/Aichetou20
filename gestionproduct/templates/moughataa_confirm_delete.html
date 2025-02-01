@@ -3,18 +3,53 @@
 {% block title %}Supprimer Moughataa{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="text-center">Supprimer la Moughataa</h1>
-    <p>Êtes-vous sûr de vouloir supprimer la moughataa suivante ?</p>
-    <ul>
-        <li><strong>Code :</strong> {{ object.code }}</li>
-        <li><strong>Label :</strong> {{ object.label }}</li>
-        <li><strong>Wilaya :</strong> {{ object.wilaya.name }}</li>
-    </ul>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Confirmer</button>
-        <a href="{% url 'moughataa-list' %}" class="btn btn-secondary">Annuler</a>
-    </form>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm rounded-custom">
+                <div class="card-header bg-white py-3">
+                    <h4 class="card-title mb-0 text-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmation de suppression
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="display-1 text-danger mb-3">
+                            <i class="fas fa-trash-alt"></i>
+                        </div>
+                        <h5 class="mb-3">Êtes-vous sûr de vouloir supprimer cette moughataa ?</h5>
+                        <p class="text-muted">Cette action est irréversible.</p>
+                    </div>
+
+                    <div class="bg-light p-3 rounded mb-4">
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <div class="fw-bold text-muted">Code</div>
+                                <div>{{ object.code }}</div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="fw-bold text-muted">Label</div>
+                                <div>{{ object.label }}</div>
+                            </div>
+                            <div class="col-12">
+                                <div class="fw-bold text-muted">Wilaya</div>
+                                <div>{{ object.wilaya.name }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form method="post" class="d-flex justify-content-center gap-2">
+                        {% csrf_token %}
+                        <a href="{% url 'moughataa-list' %}" class="btn btn-light">
+                            <i class="fas fa-times me-1"></i>Annuler
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash-alt me-1"></i>Supprimer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
