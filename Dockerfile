@@ -16,8 +16,6 @@ COPY . .
 
 # Create a non-root user for security
 RUN useradd -m myuser && chown -R myuser:myuser /app
-# Create log directory with proper permissions
-RUN touch /app/django_errors.log && chown myuser:myuser /app/django_errors.log
 USER myuser
 
 EXPOSE 8000

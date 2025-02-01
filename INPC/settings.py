@@ -121,28 +121,7 @@ CSRF_COOKIE_SECURE = False  # True si HTTPS
 X_FRAME_OPTIONS = 'DENY'
 
 # Configuration des logs
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': str(BASE_DIR / 'django_errors.log'),
-        },
-        'console': {
-            'class': 'logging.StreamHandler',
-            'level': 'DEBUG',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file', 'console'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-    },
-}
+# LOGGING configuration removed to avoid permission issues
 
 # Authentication settings
 LOGIN_URL = '/accounts/login/'
