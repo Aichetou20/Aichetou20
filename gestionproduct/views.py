@@ -1,11 +1,13 @@
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.shortcuts import render
-from .models import Product, ProductType, Wilaya, Moughataa, Commune, PointOfSale, CartProducts, Cart, ProductPrice
+from .models import Product, ProductType, Wilaya, Moughataa, Commune, PointOfSale, CartProducts, Cart, ProductPrice, INPC
 import json
-
-
-from django.http import HttpResponse
+from datetime import datetime
+from django.db import models
+from django.db.models import Count, Avg
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, JsonResponse
 
 from django.contrib import messages
 
@@ -521,7 +523,7 @@ def import_cartproducts_from_excel(request):
                     CartProducts.objects.update_or_create(
                         cart=cart,
                         product=product,
-                        defaults={'quantity': row['quantity']}  # Ajout ou mise à jour de la quantité
+                        defaults={'weight': row['weight']}  # Ajout ou mise à jour du poids
                     )
                 except Cart.DoesNotExist:
                     messages.error(request, f"Panier avec ID {row['cart_id']} non trouvé.")
@@ -532,9 +534,9 @@ def import_cartproducts_from_excel(request):
         except Exception as e:
             messages.error(request, f"Erreur lors de l'importation : {e}")
 
-        return HttpResponseRedirect(reverse('cartproducts-list'))  # Redirection vers la liste des produits dans les paniers
+        return HttpResponseRedirect(reverse('cartproduct-list'))  # Redirection vers la liste des produits dans les paniers
 
-    return HttpResponseRedirect(reverse('cartproducts-list'))  # Si pas de fichier, retour à la liste des produits dans les paniers
+    return HttpResponseRedirect(reverse('cartproduct-list'))  # Si pas de fichier, retour à la liste des produits dans les paniers
 
 import pandas as pd
 from django.http import HttpResponse
@@ -810,25 +812,6 @@ from django.http import JsonResponse
 from django.db.models import Avg
 from .models import ProductPrice
 
-def calculate_inpc(request, year, month):
-    """
-    Calcule l'Indice National des Prix à la Consommation (INPC) pour un mois donné.
-    """
-    # Filtrer les prix qui couvrent la période demandée
-    prices = ProductPrice.objects.filter(date_from__year=year, date_from__month=month)
-    
-    if not prices.exists():
-        return JsonResponse({"error": "Pas assez de données pour calculer l'INPC."}, status=400)
-
-    # Calcul de l'INPC (exemple : moyenne des prix des produits)
-    average_price = prices.aggregate(Avg('value'))['value__avg']
-
-    return JsonResponse({
-        "year": year,
-        "month": month,
-        "inpc_value": average_price
-    })
-
 
 
 from django.contrib.auth.decorators import login_required
@@ -837,28 +820,29 @@ from django.db.models import Count
 
 @login_required
 def dashboard(request):
-    # Get basic statistics
-    total_products = Product.objects.count()
-    active_carts = Cart.objects.count()
-    total_wilayas = Wilaya.objects.count()
+    # Get recent INPC values (last 4 months)
+    recent_inpc = INPC.objects.all().order_by('-year', '-month')[:4]
     
-    # Get INPC data for the last 4 months
-    recent_inpc = list(INPC.objects.order_by('-year', '-month')[:4])
+    # Get all INPC values for history
+    inpc_history = list(INPC.objects.all().order_by('-year', '-month'))
     
-    # Get INPC data for the chart (last 12 months)
-    inpc_data = list(INPC.objects.order_by('-year', '-month')[:12])
-    inpc_labels = []
-    inpc_values = []
-    inpc_variation = 0
+    # Calculate variations for history
+    for i in range(len(inpc_history)):
+        if i < len(inpc_history) - 1:
+            current_value = inpc_history[i].inpc_value
+            next_value = inpc_history[i + 1].inpc_value
+            if next_value:
+                variation = ((current_value - next_value) / next_value) * 100
+                inpc_history[i].variation = variation
+            else:
+                inpc_history[i].variation = None
+        else:
+            inpc_history[i].variation = None
     
-    if inpc_data:
-        inpc_data.reverse()  # Show oldest to newest
-        inpc_labels = [f"{obj.year}-{obj.month}" for obj in inpc_data]
-        inpc_values = [float(obj.inpc_value) for obj in inpc_data]
-        
-        # Calculate INPC variation from the most recent data
-        if len(inpc_values) >= 2:
-            inpc_variation = ((inpc_values[-1] - inpc_values[-2]) / inpc_values[-2]) * 100
+    # Get years for calculator
+    current_year = datetime.now().year
+    years = range(current_year - 5, current_year + 1)
+    months = range(1, 13)
     
     # Handle INPC calculation form
     calculation_result = None
@@ -882,12 +866,17 @@ def dashboard(request):
                     if price.product_id not in product_prices:
                         product_prices[price.product_id] = {
                             'sum': price.value,
-                            'count': 1,
-                            'name': price.product.name
+                            'count': 1
                         }
                     else:
                         product_prices[price.product_id]['sum'] += price.value
                         product_prices[price.product_id]['count'] += 1
+                
+                # Get cart products for weights
+                cart_products = CartProducts.objects.filter(
+                    date_from__lte=f"{year}-{month}-01",
+                    date_to__gte=f"{year}-{month}-28"
+                )
                 
                 # Calculate weighted average for INPC
                 total_weight = 0
@@ -895,8 +884,12 @@ def dashboard(request):
                 
                 for product_id, data in product_prices.items():
                     avg_price = data['sum'] / data['count']
-                    product = Product.objects.get(id=product_id)
-                    weight = product.weight or 1  # Default weight of 1 if not specified
+                    # Get weight from cart products or use default weight of 1
+                    weight = 1
+                    for cp in cart_products:
+                        if cp.product_id == product_id:
+                            weight = cp.weight
+                            break
                     
                     weighted_sum += avg_price * weight
                     total_weight += weight
@@ -926,7 +919,34 @@ def dashboard(request):
         except Exception as e:
             calculation_error = f"Erreur lors du calcul: {str(e)}"
     
-    # Get product distribution by type
+    # Get INPC data for the chart (last 12 months)
+    inpc_data = list(INPC.objects.order_by('-year', '-month')[:12])
+    inpc_labels = []
+    inpc_values = []
+    
+    if inpc_data:
+        inpc_data.reverse()  # Show oldest to newest
+        inpc_labels = [f"{obj.month}/{obj.year}" for obj in inpc_data]
+        inpc_values = [float(obj.inpc_value) for obj in inpc_data]
+    
+    # Calculate total products
+    total_products = Product.objects.count()
+    
+    # Calculate active carts
+    active_carts = Cart.objects.count()
+    
+    # Calculate total wilayas
+    total_wilayas = Wilaya.objects.count()
+    
+    # Calculate INPC variation (latest vs previous)
+    inpc_variation = 0
+    if len(recent_inpc) >= 2:
+        latest_inpc = recent_inpc[0].inpc_value
+        previous_inpc = recent_inpc[1].inpc_value
+        if previous_inpc:
+            inpc_variation = ((latest_inpc - previous_inpc) / previous_inpc) * 100
+    
+    # Get product distribution
     product_distribution = list(
         ProductType.objects.annotate(product_count=Count('product'))
         .values('label', 'product_count')
@@ -946,16 +966,17 @@ def dashboard(request):
         .order_by('-point_count')
     )
     
-    # Get years for the form
-    current_year = timezone.now().year
-    years = range(current_year - 5, current_year + 1)
-    months = range(1, 13)
-    
     context = {
+        'recent_inpc': recent_inpc,
+        'inpc_history': inpc_history,
+        'years': years,
+        'months': months,
         'total_products': total_products,
         'active_carts': active_carts,
         'total_wilayas': total_wilayas,
         'inpc_variation': round(inpc_variation, 2),
+        'calculation_result': calculation_result,
+        'calculation_error': calculation_error,
         'inpc_data': {
             'labels': inpc_labels,
             'values': inpc_values,
@@ -963,11 +984,121 @@ def dashboard(request):
         'product_distribution': product_distribution,
         'price_trends': price_trends,
         'geographical_data': geographical_data,
-        'years': years,
-        'months': months,
-        'calculation_result': calculation_result,
-        'calculation_error': calculation_error,
-        'recent_inpc': recent_inpc
     }
     
     return render(request, 'dashboard.html', context)
+
+def calculate_inpc(request, year, month):
+    """
+    Calcule l'Indice National des Prix à la Consommation (INPC) pour un mois donné.
+    Utilise les prix des produits pondérés par leurs poids dans le panier de consommation.
+    Prend en compte les dates exactes des prix et des paniers.
+    """
+    from datetime import datetime, date
+    from calendar import monthrange
+    
+    try:
+        # Get the first and last day of the specified month
+        _, last_day = monthrange(year, month)
+        period_start = date(year, month, 1)
+        period_end = date(year, month, last_day)
+        
+        # Get cart products active during any part of the month
+        cart_products = CartProducts.objects.filter(
+            date_from__lte=period_end,
+            date_to__gte=period_start
+        )
+        
+        if not cart_products.exists():
+            return JsonResponse({
+                "error": "Aucun produit dans le panier pour cette période."
+            }, status=400)
+        
+        # Calculate weighted prices for the month
+        total_weighted_price = 0
+        total_weight = 0
+        products_with_prices = 0
+        product_details = []
+        
+        for cart_product in cart_products:
+            # Calculate the effective days this product was active in the month
+            effective_start = max(cart_product.date_from, period_start)
+            effective_end = min(cart_product.date_to, period_end)
+            active_days = (effective_end - effective_start).days + 1
+            
+            # Only consider products active for at least one day
+            if active_days <= 0:
+                continue
+                
+            # Get the most relevant price for this product in the specified month
+            try:
+                prices = ProductPrice.objects.filter(
+                    product=cart_product.product,
+                    date_from__lte=period_end,
+                    date_to__gte=period_start
+                ).order_by('-date_from')
+                
+                if prices.exists():
+                    # Calculate weighted average price if multiple prices exist in the month
+                    product_total_price = 0
+                    product_total_days = 0
+                    
+                    for price in prices:
+                        price_start = max(price.date_from, effective_start)
+                        price_end = min(price.date_to, effective_end)
+                        price_days = (price_end - price_start).days + 1
+                        
+                        if price_days > 0:
+                            product_total_price += price.value * price_days
+                            product_total_days += price_days
+                    
+                    if product_total_days > 0:
+                        avg_price = product_total_price / product_total_days
+                        # Weight adjusted by the number of active days in the month
+                        day_weight = active_days / last_day
+                        effective_weight = cart_product.weight * day_weight
+                        
+                        total_weighted_price += avg_price * effective_weight
+                        total_weight += effective_weight
+                        products_with_prices += 1
+                        
+                        product_details.append({
+                            'product': cart_product.product.name,
+                            'weight': effective_weight,
+                            'price': avg_price,
+                            'active_days': active_days
+                        })
+                
+            except Exception as e:
+                continue
+        
+        if total_weight == 0:
+            return JsonResponse({
+                "error": "Pas assez de données de prix pour calculer l'INPC."
+            }, status=400)
+        
+        # Calculate final INPC value
+        inpc_value = total_weighted_price / total_weight
+        
+        # Save the calculated INPC
+        inpc, created = INPC.objects.update_or_create(
+            year=year,
+            month=month,
+            defaults={'inpc_value': inpc_value}
+        )
+        
+        return JsonResponse({
+            "year": year,
+            "month": month,
+            "inpc_value": round(inpc_value, 2),
+            "total_products": cart_products.count(),
+            "products_with_prices": products_with_prices,
+            "total_weight": round(total_weight, 2),
+            "product_details": product_details,
+            "message": "INPC calculé avec succès!"
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            "error": f"Erreur lors du calcul: {str(e)}"
+        }, status=500)

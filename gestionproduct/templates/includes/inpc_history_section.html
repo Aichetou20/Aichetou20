@@ -1,0 +1,56 @@
+<!-- INPC History Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="dashboard-card">
+            <div class="dashboard-card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Historique Complet de l'INPC</h5>
+                <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#inpcHistory">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            <div class="collapse show" id="inpcHistory">
+                <div class="dashboard-card-body">
+                    {% if inpc_history %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Année</th>
+                                        <th>Mois</th>
+                                        <th>Valeur INPC</th>
+                                        <th>Variation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for inpc in inpc_history %}
+                                    <tr>
+                                        <td>{{ inpc.year }}</td>
+                                        <td>{{ inpc.month }}</td>
+                                        <td>{{ inpc.inpc_value|floatformat:2 }}</td>
+                                        <td>
+                                            {% if inpc.variation %}
+                                                <span class="{% if inpc.variation > 0 %}text-danger{% else %}text-success{% endif %}">
+                                                    {{ inpc.variation|floatformat:2 }}%
+                                                    {% if inpc.variation > 0 %}↑{% else %}↓{% endif %}
+                                                </span>
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-history empty-icon"></i>
+                            <h6 class="empty-title">Aucun historique INPC</h6>
+                            <p class="empty-text">L'historique apparaîtra ici une fois que des valeurs INPC seront calculées</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

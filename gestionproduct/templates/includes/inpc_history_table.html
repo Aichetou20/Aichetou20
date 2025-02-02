@@ -1,0 +1,47 @@
+{% if inpc_history %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Année</th>
+                    <th>Mois</th>
+                    <th>Valeur INPC</th>
+                    <th>Variation</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inpc in inpc_history %}
+                <tr>
+                    <td>{{ inpc.year }}</td>
+                    <td>{{ inpc.month }}</td>
+                    <td>{{ inpc.inpc_value|floatformat:2 }}</td>
+                    <td>
+                        {% if not forloop.last %}
+                            {% with next=inpc_history|get_item:forloop.counter0|add:"1" %}
+                            {% if next and next.inpc_value %}
+                                {% with variation=inpc.inpc_value|subtract:next.inpc_value|divide:next.inpc_value|multiply:100 %}
+                                <span class="{% if variation > 0 %}text-danger{% else %}text-success{% endif %}">
+                                    {{ variation|floatformat:2 }}%
+                                    {% if variation > 0 %}↑{% else %}↓{% endif %}
+                                </span>
+                                {% endwith %}
+                            {% else %}
+                                -
+                            {% endif %}
+                            {% endwith %}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="empty-state">
+        <i class="fas fa-history empty-icon"></i>
+        <h6 class="empty-title">Aucun historique INPC</h6>
+        <p class="empty-text">L'historique apparaîtra ici une fois que des valeurs INPC seront calculées</p>
+    </div>
+{% endif %}
